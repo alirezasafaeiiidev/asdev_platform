@@ -1,0 +1,30 @@
+# asdev:template_id=go-level1-ci version=0.1.0 source=standards/ci/go.md
+name: ASDEV Go Level 1 CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.59
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go test ./...

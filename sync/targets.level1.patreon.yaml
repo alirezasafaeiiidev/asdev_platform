@@ -1,0 +1,10 @@
+targets:
+  - repo: alirezasafaeiiidev/patreon_iran
+    default_branch: main
+    templates:
+      - js-ts-level1-ci
+    optional_features: []
+    opt_outs: []
+    labels:
+      - asdev-sync
+      - standards

@@ -36,10 +36,22 @@ templates:
     path: .github/workflows/asdev-quality-gate.yml
 
   - id: js-ts-level1-ci
-    version: 0.1.0
+    version: 0.2.0
     mode: should
     source_ref: standards/ci/javascript-typescript.md
     path: .github/workflows/js-ts-level1.yml
+
+  - id: python-level1-ci
+    version: 0.1.0
+    mode: should
+    source_ref: standards/ci/python.md
+    path: .github/workflows/python-level1.yml
+
+  - id: go-level1-ci
+    version: 0.1.0
+    mode: should
+    source_ref: standards/ci/go.md
+    path: .github/workflows/go-level1.yml
 
   - id: editorconfig-default
     version: 1.0.0

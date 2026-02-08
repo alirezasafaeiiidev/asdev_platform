@@ -9,6 +9,7 @@
 - Advisory-first sync preserved existing `README.md` and `CONTRIBUTING.md` by default.
 - JS/TS Level 1 adoption initiated and merged on `persian_tools`.
 - JS/TS Level 1 adoption expanded and merged on `my_portfolio`.
+- JS/TS Level 1 adoption expanded and merged on `patreon_iran`.
 
 ## Divergence Metrics
 
@@ -21,3 +22,4 @@
 
 - Divergence report: `sync/divergence-report.csv`
 - ADR: `governance/ADR/ADR-0003-level1-js-ts-adoption.md`
+- Dashboard: `docs/platform-adoption-dashboard.md`

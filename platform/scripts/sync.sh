@@ -179,14 +179,14 @@ for ((i=0; i<count_targets; i++)); do
     refs+="- ${template_id}: ${source_ref}"$'\n'
   done
 
-  if git diff --quiet; then
+  if [[ -z "$(git status --porcelain)" ]]; then
     echo "No changes for $repo"
     popd >/dev/null
     ((skipped+=1))
     continue
   fi
 
-  git add .
+  git add -A
   git commit -m "chore: sync ASDEV Level 0 templates" >/dev/null
 
   if [[ "$DRY_RUN" == "true" ]]; then

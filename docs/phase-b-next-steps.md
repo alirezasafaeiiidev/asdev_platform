@@ -65,8 +65,15 @@
 - [x] Record exit criteria and rollback conditions for each rollout wave.
 
 ## Next Execution Tasks (Phase D)
-- [ ] Roll out Level 1 JS/TS workflow to `patreon_iran` after script-contract readiness.
-- [ ] Add Python Level 1 baseline docs and CI template (`ruff` + `pytest`) per ADR-0004 wave order.
-- [ ] Add Go Level 1 baseline docs and CI template (`golangci-lint` + `go test`) as draft.
-- [ ] Add release-note automation to include divergence deltas compared with previous snapshot.
-- [ ] Create a platform dashboard markdown report summarizing adoption per repo and per level.
+- [x] Roll out Level 1 JS/TS workflow to `patreon_iran` after script-contract readiness.
+- [x] Add Python Level 1 baseline docs and CI template (`ruff` + `pytest`) per ADR-0004 wave order.
+- [x] Add Go Level 1 baseline docs and CI template (`golangci-lint` + `go test`) as draft.
+- [x] Add release-note automation to include divergence deltas compared with previous snapshot.
+- [x] Create a platform dashboard markdown report summarizing adoption per repo and per level.
+
+## Next Execution Tasks (Phase E)
+- [ ] Execute first monthly release run and merge resulting PR.
+- [ ] Roll out Python Level 1 to first Python pilot repository.
+- [ ] Add `targets.level1.python.yaml` and `targets.level1.go.yaml` for wave-based rollout.
+- [ ] Extend dashboard with trend section (previous vs current divergence delta).
+- [ ] Add CI check that validates all target files reference known template IDs.
