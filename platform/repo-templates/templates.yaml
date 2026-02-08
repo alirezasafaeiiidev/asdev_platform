@@ -35,6 +35,12 @@ templates:
     source_ref: standards/ci/minimal-github-actions.md
     path: .github/workflows/asdev-quality-gate.yml
 
+  - id: js-ts-level1-ci
+    version: 0.1.0
+    mode: should
+    source_ref: standards/ci/javascript-typescript.md
+    path: .github/workflows/js-ts-level1.yml
+
   - id: editorconfig-default
     version: 1.0.0
     mode: optional

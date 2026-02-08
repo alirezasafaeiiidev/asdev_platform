@@ -4,5 +4,6 @@ set -euo pipefail
 bash -n platform/scripts/sync.sh
 bash -n platform/scripts/divergence-report.sh
 bash tests/test_sync_behavior.sh
+bash tests/test_divergence_report_columns.sh
 
 echo "Script checks passed."

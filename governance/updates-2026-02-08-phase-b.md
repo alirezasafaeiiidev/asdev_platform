@@ -8,6 +8,7 @@
   - `alirezasafaeiiidev/patreon_iran`
 - Advisory-first sync preserved existing `README.md` and `CONTRIBUTING.md` by default.
 - JS/TS Level 1 adoption initiated and merged on `persian_tools`.
+- JS/TS Level 1 adoption expanded and merged on `my_portfolio`.
 
 ## Divergence Metrics
 

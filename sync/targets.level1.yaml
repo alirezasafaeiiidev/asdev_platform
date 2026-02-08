@@ -1,0 +1,20 @@
+targets:
+  - repo: alirezasafaeiiidev/my_portfolio
+    default_branch: main
+    templates:
+      - js-ts-level1-ci
+    optional_features: []
+    opt_outs: []
+    labels:
+      - asdev-sync
+      - standards
+
+  - repo: alirezasafaeiiidev/persian_tools
+    default_branch: main
+    templates:
+      - js-ts-level1-ci
+    optional_features: []
+    opt_outs: []
+    labels:
+      - asdev-sync
+      - standards

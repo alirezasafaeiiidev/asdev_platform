@@ -24,8 +24,49 @@
 - [x] Add CI in `asdev_platform` to run `make lint` and `make test` on PRs.
 
 ## Next Execution Tasks (Phase C)
-- [ ] Expand Level 1 JS/TS rollout to `my_portfolio`.
-- [ ] Add `sync/targets.level1.yaml` with per-repo language-aware template selection.
-- [ ] Extend divergence report with `mode` and `source_ref` columns.
-- [ ] Add monthly release task to bump template versions and publish governance update.
-- [ ] Introduce ADR-0004 for multi-language Level 1 rollout strategy (Python/Go sequencing).
+- [x] Expand Level 1 JS/TS rollout to `my_portfolio`.
+- [x] Add `sync/targets.level1.yaml` with per-repo language-aware template selection.
+- [x] Extend divergence report with `mode` and `source_ref` columns.
+- [x] Add monthly release task to bump template versions and publish governance update.
+- [x] Introduce ADR-0004 for multi-language Level 1 rollout strategy (Python/Go sequencing).
+
+## Phase C Task Breakdown
+
+### C1. JS/TS Level 1 rollout on `my_portfolio`
+- [x] Create branch `chore/asdev-js-ts-level1-<date>` in `my_portfolio`.
+- [x] Add `.github/workflows/asdev-js-ts-level1.yml` with package-manager-aware steps.
+- [x] Verify required scripts exist: `lint`, `test`, `typecheck` (or adjust workflow for conditional typecheck).
+- [x] Open PR with labels `asdev-sync` and `standards`.
+- [x] Merge PR and delete rollout branch.
+
+### C2. Level 1 target map
+- [x] Create `sync/targets.level1.yaml`.
+- [x] Add `my_portfolio` and `persian_tools` with JS/TS Level 1 template mapping.
+- [x] Keep `patreon_iran` out of Level 1 until stack readiness is confirmed.
+- [x] Add optional-feature flags for incremental adoption.
+
+### C3. Divergence report enhancement
+- [x] Update `platform/scripts/divergence-report.sh` to include `mode` and `source_ref`.
+- [x] Update CSV header to:
+  `repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at`.
+- [x] Validate report generation against `sync/targets.yaml`.
+- [x] Add regression check to tests for the new columns.
+
+### C4. Monthly release automation
+- [x] Add `scripts/monthly-release.sh` in `asdev_platform`.
+- [x] Include tasks: version bump, divergence snapshot, governance update stub.
+- [x] Add a GitHub Actions scheduled workflow (monthly UTC).
+- [x] Ensure workflow opens a PR instead of direct push.
+
+### C5. ADR-0004 for multi-language Level 1 strategy
+- [x] Draft `governance/ADR/ADR-0004-multilanguage-level1-rollout.md`.
+- [x] Define rollout order: JS/TS -> Python -> Go.
+- [x] Define entrance criteria per language (toolchain, CI baseline, script contract).
+- [x] Record exit criteria and rollback conditions for each rollout wave.
+
+## Next Execution Tasks (Phase D)
+- [ ] Roll out Level 1 JS/TS workflow to `patreon_iran` after script-contract readiness.
+- [ ] Add Python Level 1 baseline docs and CI template (`ruff` + `pytest`) per ADR-0004 wave order.
+- [ ] Add Go Level 1 baseline docs and CI template (`golangci-lint` + `go test`) as draft.
+- [ ] Add release-note automation to include divergence deltas compared with previous snapshot.
+- [ ] Create a platform dashboard markdown report summarizing adoption per repo and per level.

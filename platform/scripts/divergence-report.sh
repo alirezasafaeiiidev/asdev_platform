@@ -66,7 +66,7 @@ work_root="$(mktemp -d)"
 trap 'rm -rf "$work_root"' EXIT
 
 mkdir -p "$(dirname "$OUTPUT_FILE")"
-echo "repo,template_id,expected_version,detected_version,status,last_checked_at" > "$OUTPUT_FILE"
+echo "repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at" > "$OUTPUT_FILE"
 
 for ((i=0; i<count_targets; i++)); do
   repo="$(yq -r ".targets[$i].repo" "$TARGETS_FILE")"
@@ -76,7 +76,7 @@ for ((i=0; i<count_targets; i++)); do
   repo_dir="$work_root/${repo##*/}"
 
   if ! gh repo clone "$repo" "$repo_dir" -- -q; then
-    echo "${repo},all,n/a,n/a,clone_failed,${DATE_NOW}" >> "$OUTPUT_FILE"
+    echo "${repo},all,n/a,n/a,n/a,n/a,clone_failed,${DATE_NOW}" >> "$OUTPUT_FILE"
     continue
   fi
 
@@ -91,9 +91,11 @@ for ((i=0; i<count_targets; i++)); do
 
     path="$(lookup_template_value "$template_id" "path")"
     expected_version="$(lookup_template_value "$template_id" "version")"
+    mode="$(lookup_template_value "$template_id" "mode")"
+    source_ref="$(lookup_template_value "$template_id" "source_ref")"
 
     if [[ -z "$path" || "$path" == "null" ]]; then
-      echo "${repo},${template_id},${expected_version},unknown,unknown_template,${DATE_NOW}" >> "$OUTPUT_FILE"
+      echo "${repo},${template_id},${expected_version},unknown,${mode},${source_ref},unknown_template,${DATE_NOW}" >> "$OUTPUT_FILE"
       continue
     fi
 
@@ -106,7 +108,7 @@ for ((i=0; i<count_targets; i++)); do
     done
 
     if [[ "$is_opted_out" == "true" ]]; then
-      echo "${repo},${template_id},${expected_version},n/a,opted_out,${DATE_NOW}" >> "$OUTPUT_FILE"
+      echo "${repo},${template_id},${expected_version},n/a,${mode},${source_ref},opted_out,${DATE_NOW}" >> "$OUTPUT_FILE"
       continue
     fi
 
@@ -114,16 +116,16 @@ for ((i=0; i<count_targets; i++)); do
     dst="$repo_dir/$path"
 
     if [[ ! -f "$dst" ]]; then
-      echo "${repo},${template_id},${expected_version},missing,missing,${DATE_NOW}" >> "$OUTPUT_FILE"
+      echo "${repo},${template_id},${expected_version},missing,${mode},${source_ref},missing,${DATE_NOW}" >> "$OUTPUT_FILE"
       continue
     fi
 
     detected_version="$(extract_detected_version "$dst")"
 
     if cmp -s "$src" "$dst"; then
-      echo "${repo},${template_id},${expected_version},${detected_version},aligned,${DATE_NOW}" >> "$OUTPUT_FILE"
+      echo "${repo},${template_id},${expected_version},${detected_version},${mode},${source_ref},aligned,${DATE_NOW}" >> "$OUTPUT_FILE"
     else
-      echo "${repo},${template_id},${expected_version},${detected_version},diverged,${DATE_NOW}" >> "$OUTPUT_FILE"
+      echo "${repo},${template_id},${expected_version},${detected_version},${mode},${source_ref},diverged,${DATE_NOW}" >> "$OUTPUT_FILE"
     fi
   done
 done

@@ -10,6 +10,7 @@ setup:
 lint:
 	@bash -n platform/scripts/sync.sh
 	@bash -n platform/scripts/divergence-report.sh
+	@bash -n scripts/monthly-release.sh
 	@echo "Lint checks passed."
 
 test:
