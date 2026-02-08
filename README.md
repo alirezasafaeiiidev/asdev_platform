@@ -40,6 +40,7 @@ make run
 ## Phase B Deliverables
 
 - ADR-based governance and scope lock
-- Level 0 language-agnostic standards
+- Level 0 language-agnostic standards (v1.1.0)
 - Versioned repo templates with source traceability
 - Sync MVP scripts for PR-driven adoption and divergence reporting
+- Level 1 JS/TS baseline kickoff (draft)

@@ -6,6 +6,7 @@ TEMPLATES_FILE="${2:-platform/repo-templates/templates.yaml}"
 TEMPLATES_ROOT="${3:-platform/repo-templates}"
 DRY_RUN="${DRY_RUN:-false}"
 DATE_TAG="$(date +%Y%m%d)"
+FORCE_OVERWRITE_DOCS="${FORCE_OVERWRITE_DOCS:-false}"
 
 resolve_path() {
   local path_value="$1"
@@ -64,6 +65,13 @@ copy_template() {
 
   local src_path="$TEMPLATES_ROOT/$relative_path"
   local dest_path="$repo_dir/$relative_path"
+
+  if [[ "$FORCE_OVERWRITE_DOCS" != "true" ]] && [[ -f "$dest_path" ]]; then
+    if [[ "$relative_path" == "README.md" || "$relative_path" == "CONTRIBUTING.md" ]]; then
+      echo "Preserving existing documentation file: $relative_path"
+      return 0
+    fi
+  fi
 
   if [[ ! -f "$src_path" ]]; then
     echo "Template file missing: $src_path" >&2
@@ -163,7 +171,9 @@ for ((i=0; i<count_targets; i++)); do
       continue
     fi
 
-    copy_template "$repo_dir" "$template_id"
+    if ! copy_template "$repo_dir" "$template_id"; then
+      continue
+    fi
 
     source_ref="$(lookup_template_ref "$template_id")"
     refs+="- ${template_id}: ${source_ref}"$'\n'
