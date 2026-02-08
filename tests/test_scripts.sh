@@ -3,5 +3,6 @@ set -euo pipefail
 
 bash -n platform/scripts/sync.sh
 bash -n platform/scripts/divergence-report.sh
+bash tests/test_sync_behavior.sh
 
-echo "Script syntax checks passed."
+echo "Script checks passed."

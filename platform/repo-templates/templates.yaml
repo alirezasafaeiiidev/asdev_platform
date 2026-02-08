@@ -1,6 +1,6 @@
 templates:
   - id: pr-template
-    version: 1.0.0
+    version: 1.1.0
     mode: must
     source_ref: standards/coding/level-0.md
     path: .github/pull_request_template.md
