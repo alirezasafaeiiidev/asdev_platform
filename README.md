@@ -57,7 +57,7 @@ bash scripts/generate-dashboard.sh docs/platform-adoption-dashboard.md
   - `sync/divergence-report.combined.csv`
   - `docs/platform-adoption-dashboard.md`
 - If generated outputs change, CI opens an automated PR.
-- If the combined report contains `clone_failed`, CI fails to avoid publishing incomplete data.
+- If the combined report contains `clone_failed`, CI publishes a warning with the affected repositories.
 
 ## Phase B Deliverables
 

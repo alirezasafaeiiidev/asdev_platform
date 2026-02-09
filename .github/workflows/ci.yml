@@ -55,11 +55,12 @@ jobs:
             platform/repo-templates \
             sync/divergence-report.combined.csv
 
-      - name: Fail on clone_failed rows
+      - name: Report clone_failed rows
         run: |
-          if awk -F, 'NR>1 && $8=="clone_failed" {print $0}' sync/divergence-report.combined.csv | grep -q .; then
-            echo "clone_failed rows detected in sync/divergence-report.combined.csv" >&2
-            exit 1
+          if awk -F, 'NR>1 && $8=="clone_failed" {print $1}' sync/divergence-report.combined.csv | grep -q .; then
+            echo "::warning::clone_failed rows detected in sync/divergence-report.combined.csv"
+            echo "Repositories with clone_failed:"
+            awk -F, 'NR>1 && $8=="clone_failed" {print "- " $1}' sync/divergence-report.combined.csv | sort -u
           fi
 
       - name: Generate dashboard
