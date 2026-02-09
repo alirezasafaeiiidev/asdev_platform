@@ -56,6 +56,7 @@ bash scripts/generate-dashboard.sh docs/platform-adoption-dashboard.md
 - On `push` to `main`, CI regenerates:
   - `sync/divergence-report.combined.csv`
   - `docs/platform-adoption-dashboard.md`
+- A weekly scheduled run (Mondays 09:00 UTC) regenerates the same outputs.
 - If generated outputs change, CI opens an automated PR.
 - If the combined report contains `clone_failed`, CI publishes a warning with the affected repositories.
 

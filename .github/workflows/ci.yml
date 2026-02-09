@@ -5,6 +5,8 @@ on:
   push:
     branches:
       - main
+  schedule:
+    - cron: '0 9 * * 1'
 
 jobs:
   lint-and-test:
@@ -31,7 +33,7 @@ jobs:
         run: make test
 
   generate-reports-docs:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
     needs: lint-and-test
     runs-on: ubuntu-latest
     permissions:
@@ -49,6 +51,9 @@ jobs:
       - name: Generate combined divergence report
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RETRY_ATTEMPTS: "5"
+          RETRY_BASE_DELAY: "2"
+          CLONE_TIMEOUT_SECONDS: "60"
         run: |
           bash platform/scripts/divergence-report-combined.sh \
             platform/repo-templates/templates.yaml \
@@ -75,7 +80,7 @@ jobs:
             docs/platform-adoption-dashboard.md
 
   open-update-pr:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
     needs: generate-reports-docs
     runs-on: ubuntu-latest
     permissions:
