@@ -60,6 +60,22 @@ fi
 attested_combined="$(grep '^combined_sha256=' "$ATTESTATION_FILE" | cut -d= -f2-)"
 attested_errors="$(grep '^errors_sha256=' "$ATTESTATION_FILE" | cut -d= -f2-)"
 attested_trend="$(grep '^trend_sha256=' "$ATTESTATION_FILE" | cut -d= -f2-)"
+attested_combined_file="$(grep '^combined_file=' "$ATTESTATION_FILE" | cut -d= -f2-)"
+attested_errors_file="$(grep '^errors_file=' "$ATTESTATION_FILE" | cut -d= -f2-)"
+attested_trend_file="$(grep '^trend_file=' "$ATTESTATION_FILE" | cut -d= -f2-)"
+
+if [[ "$attested_combined_file" != "$COMBINED_FILE" ]]; then
+  echo "Attestation path mismatch for combined_file: attested=${attested_combined_file} input=${COMBINED_FILE}" >&2
+  exit 1
+fi
+if [[ "$attested_errors_file" != "$ERRORS_FILE" ]]; then
+  echo "Attestation path mismatch for errors_file: attested=${attested_errors_file} input=${ERRORS_FILE}" >&2
+  exit 1
+fi
+if [[ "$attested_trend_file" != "$TREND_FILE" ]]; then
+  echo "Attestation path mismatch for trend_file: attested=${attested_trend_file} input=${TREND_FILE}" >&2
+  exit 1
+fi
 
 actual_combined="$(sha256sum "$COMBINED_FILE" | awk '{print $1}')"
 actual_errors="$(sha256sum "$ERRORS_FILE" | awk '{print $1}')"

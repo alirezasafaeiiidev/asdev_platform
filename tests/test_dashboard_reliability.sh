@@ -50,6 +50,7 @@ cat > "${SYNC_DIR}/divergence-report.combined.previous.csv" <<'CSV'
 target_file,repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at
 targets.yaml,example/repo-a,pr-template,1.0.0,missing,required,ref,clone_failed,2026-02-08T00:00:00Z
 targets.yaml,example/repo-c,pr-template,1.0.0,1.0.0,required,ref,aligned,2026-02-08T00:00:00Z
+targets.yaml,example/repo-d,pr-template,1.0.0,missing,required,ref,unknown_template,2026-02-08T00:00:00Z
 CSV
 
 cat > "${SYNC_DIR}/divergence-report.combined.csv" <<'CSV'
@@ -58,6 +59,8 @@ targets.yaml,example/repo-a,pr-template,1.0.0,missing,required,ref,clone_failed,
 targets.yaml,example/repo-a,issue-bug,1.0.0,missing,required,ref,clone_failed,2026-02-09T00:00:00Z
 targets.yaml,example/repo-b,pr-template,1.0.0,missing,required,ref,clone_failed,2026-02-09T00:00:00Z
 targets.yaml,example/repo-c,pr-template,1.0.0,1.0.0,required,ref,aligned,2026-02-09T00:00:00Z
+targets.yaml,example/repo-d,pr-template,1.0.0,missing,required,ref,unknown_template,2026-02-09T00:00:00Z
+targets.yaml,example/repo-e,pr-template,1.0.0,missing,required,ref,unknown_template,2026-02-09T00:00:00Z
 CSV
 
 cat > "${SYNC_DIR}/divergence-report.combined.errors.trend.csv" <<'CSV'
@@ -81,6 +84,7 @@ cat > "${SYNC_DIR}/snapshots/divergence-report.combined.20260209T100000Z.csv" <<
 target_file,repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at
 targets.yaml,example/repo-a,pr-template,1.0.0,missing,required,ref,clone_failed,2026-02-09T10:00:00Z
 targets.yaml,example/repo-b,pr-template,1.0.0,missing,required,ref,clone_failed,2026-02-09T10:00:00Z
+targets.yaml,example/repo-d,pr-template,1.0.0,missing,required,ref,unknown_template,2026-02-09T10:00:00Z
 CSV
 
 bash "${ROOT_DIR}/scripts/generate-dashboard.sh" "${OUTPUT_FILE}"
@@ -172,6 +176,26 @@ grep -q "| previous | 1 |" "${OUTPUT_FILE}" || {
 
 grep -q "| 20260209T100000Z | 2 |" "${OUTPUT_FILE}" || {
   echo "Missing snapshot clone_failed trend row" >&2
+  exit 1
+}
+
+grep -q "### unknown_template Trend by Run" "${OUTPUT_FILE}" || {
+  echo "Missing unknown_template trend by run section" >&2
+  exit 1
+}
+
+grep -q "| current | 2 |" "${OUTPUT_FILE}" || {
+  echo "Missing current unknown_template trend row" >&2
+  exit 1
+}
+
+grep -q "| previous | 1 |" "${OUTPUT_FILE}" || {
+  echo "Missing previous unknown_template trend row" >&2
+  exit 1
+}
+
+grep -q "| 20260209T100000Z | 1 |" "${OUTPUT_FILE}" || {
+  echo "Missing snapshot unknown_template trend row" >&2
   exit 1
 }
 

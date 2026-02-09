@@ -11,6 +11,8 @@ mkdir -p "${FAKE_BIN}"
 COMMENT_LOG="${WORK_DIR}/comment.log"
 CLOSE_LOG="${WORK_DIR}/close.log"
 DRY_RUN_LOG="${WORK_DIR}/dry-run.log"
+SUMMARY_LOG="${WORK_DIR}/summary.log"
+DRY_SUMMARY_LOG="${WORK_DIR}/dry-summary.log"
 
 cat > "${FAKE_BIN}/gh" <<'GH'
 #!/usr/bin/env bash
@@ -43,6 +45,7 @@ chmod +x "${FAKE_BIN}/gh"
   cd "${ROOT_DIR}"
   COMMENT_LOG_PATH="${COMMENT_LOG}" \
   CLOSE_LOG_PATH="${CLOSE_LOG}" \
+  DIGEST_STALE_SUMMARY_FILE="${SUMMARY_LOG}" \
   DIGEST_STALE_DAYS=7 \
   PATH="${FAKE_BIN}:${PATH}" \
   bash scripts/close-stale-weekly-digests.sh \
@@ -72,12 +75,23 @@ if grep -q 'issue close 31' "${CLOSE_LOG}"; then
   exit 1
 fi
 
+grep -q '^closed_count=1$' "${SUMMARY_LOG}" || {
+  echo "Expected summary closed_count=1" >&2
+  exit 1
+}
+
+grep -q '^dry_run_candidates=0$' "${SUMMARY_LOG}" || {
+  echo "Expected summary dry_run_candidates=0" >&2
+  exit 1
+}
+
 echo "stale weekly digest lifecycle checks passed."
 
 (
   cd "${ROOT_DIR}"
   COMMENT_LOG_PATH="${COMMENT_LOG}" \
   CLOSE_LOG_PATH="${CLOSE_LOG}" \
+  DIGEST_STALE_SUMMARY_FILE="${DRY_SUMMARY_LOG}" \
   DIGEST_STALE_DAYS=7 \
   DIGEST_STALE_DRY_RUN=true \
   PATH="${FAKE_BIN}:${PATH}" \
@@ -102,5 +116,15 @@ if [[ -s "${CLOSE_LOG}" && "$(wc -l < "${CLOSE_LOG}")" -gt 1 ]]; then
   echo "Dry-run should not add new close operations" >&2
   exit 1
 fi
+
+grep -q '^dry_run_enabled=true$' "${DRY_SUMMARY_LOG}" || {
+  echo "Expected summary dry_run_enabled=true" >&2
+  exit 1
+}
+
+grep -q '^dry_run_candidates=1$' "${DRY_SUMMARY_LOG}" || {
+  echo "Expected summary dry_run_candidates=1" >&2
+  exit 1
+}
 
 echo "stale weekly digest dry-run checks passed."

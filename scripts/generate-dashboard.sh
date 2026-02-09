@@ -9,6 +9,7 @@ FINGERPRINT_HISTORY_LIMIT="${FINGERPRINT_HISTORY_LIMIT:-3}"
 FINGERPRINT_HISTORY_ROW_LIMIT="${FINGERPRINT_HISTORY_ROW_LIMIT:-40}"
 FINGERPRINT_TOP_DELTA_LIMIT="${FINGERPRINT_TOP_DELTA_LIMIT:-5}"
 CLONE_FAILED_HISTORY_LIMIT="${CLONE_FAILED_HISTORY_LIMIT:-5}"
+UNKNOWN_TEMPLATE_HISTORY_LIMIT="${UNKNOWN_TEMPLATE_HISTORY_LIMIT:-5}"
 
 cd "$ROOT_DIR"
 
@@ -145,6 +146,37 @@ SECTION
     echo "| n/a | 0 |" >> "$OUTPUT_FILE"
   fi
   rm -f "$clone_failed_history_tmp"
+
+  unknown_template_prev="$(count_combined_status "$combined_prev" "unknown_template")"
+  unknown_template_curr="$(count_combined_status "$combined_curr" "unknown_template")"
+
+  cat >> "$OUTPUT_FILE" <<SECTION
+
+### unknown_template Trend by Run
+
+| Run | unknown_template rows |
+|---|---:|
+SECTION
+
+  unknown_template_history_tmp="$(mktemp)"
+  : > "$unknown_template_history_tmp"
+  echo "current,${unknown_template_curr}" >> "$unknown_template_history_tmp"
+  echo "previous,${unknown_template_prev}" >> "$unknown_template_history_tmp"
+  if [[ -d "sync/snapshots" ]]; then
+    mapfile -t unknown_template_history_files < <(find sync/snapshots -maxdepth 1 -type f -name 'divergence-report.combined.[0-9]*T[0-9]*Z.csv' | sort | tail -n "$UNKNOWN_TEMPLATE_HISTORY_LIMIT")
+    for file in "${unknown_template_history_files[@]}"; do
+      run_tag="$(basename "$file" | sed -E 's/^divergence-report\.combined\.([0-9TZ]+)\.csv$/\1/')"
+      run_unknown_template="$(count_combined_status "$file" "unknown_template")"
+      echo "${run_tag},${run_unknown_template}" >> "$unknown_template_history_tmp"
+    done
+  fi
+
+  if [[ -s "$unknown_template_history_tmp" ]]; then
+    awk -F, '{printf "| %s | %s |\n", $1, $2}' "$unknown_template_history_tmp" | sort -u | head -n "$((UNKNOWN_TEMPLATE_HISTORY_LIMIT + 2))" >> "$OUTPUT_FILE"
+  else
+    echo "| n/a | 0 |" >> "$OUTPUT_FILE"
+  fi
+  rm -f "$unknown_template_history_tmp"
 
   cat >> "$OUTPUT_FILE" <<SECTION
 

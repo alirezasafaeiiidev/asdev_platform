@@ -113,11 +113,18 @@ fi
 current_issue_number="$(gh issue list --repo alirezasafaeiiidev/asdev_platform --state open --search "${TITLE} in:title" --json number --jq '.[0].number // empty')"
 current_issue_url="$(gh issue list --repo alirezasafaeiiidev/asdev_platform --state open --search "${TITLE} in:title" --json url --jq '.[0].url // empty')"
 if [[ -n "$current_issue_number" && -n "$current_issue_url" ]]; then
+  stale_summary_file="$(mktemp)"
+  DIGEST_STALE_SUMMARY_FILE="$stale_summary_file" \
   bash scripts/close-stale-weekly-digests.sh \
     "alirezasafaeiiidev/asdev_platform" \
     "$current_issue_number" \
     "$current_issue_url" \
     "Weekly Governance Digest"
+  if [[ -f "$stale_summary_file" ]]; then
+    echo "Weekly digest stale lifecycle summary:"
+    cat "$stale_summary_file"
+    rm -f "$stale_summary_file"
+  fi
 fi
 
 rm -f "$body_file" "$actions_file"

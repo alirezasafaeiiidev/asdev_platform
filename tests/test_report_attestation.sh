@@ -105,4 +105,30 @@ grep -q 'Unsupported attestation schema_version' "${WORK_DIR}/schema.err" || {
   exit 1
 }
 
+(
+  cd "$ROOT_DIR"
+  ATTESTATION_SCHEMA_VERSION=1 bash scripts/write-report-attestation.sh "$combined" "$errors" "$trend" "$attestation"
+)
+
+renamed_combined="${WORK_DIR}/combined-renamed.csv"
+cp "$combined" "$renamed_combined"
+
+set +e
+(
+  cd "$ROOT_DIR"
+  bash scripts/validate-report-attestation.sh "$renamed_combined" "$errors" "$trend" "$attestation"
+) >"${WORK_DIR}/path.out" 2>"${WORK_DIR}/path.err"
+path_status=$?
+set -e
+
+if [[ "$path_status" -eq 0 ]]; then
+  echo "Expected attestation path consistency failure" >&2
+  exit 1
+fi
+
+grep -q 'Attestation path mismatch for combined_file' "${WORK_DIR}/path.err" || {
+  echo "Missing path mismatch error" >&2
+  exit 1
+}
+
 echo "report attestation checks passed."
