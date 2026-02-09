@@ -1,6 +1,6 @@
 # Platform Adoption Dashboard
 
-- Generated at: 2026-02-09T19:18:42Z
+- Generated at: 2026-02-09T20:39:53Z
 
 ## Level 0 Adoption (from divergence report)
 
@@ -30,6 +30,19 @@
 | clone_failed | 0 | 2 | 2 |
 | unknown_template | 0 | 0 | 0 |
 | unknown | 0 | 0 | 0 |
+
+## Combined Reliability (clone_failed)
+
+| Metric | Previous | Current | Delta |
+|---|---:|---:|---:|
+| clone_failed rows | 0 | 2 | 2 |
+
+### clone_failed by Repository
+
+| Repository | Previous | Current | Delta |
+|---|---:|---:|---:|
+| alirezasafaeiiidev/go-level1-pilot | 0 | 1 | 1 |
+| alirezasafaeiiidev/python-level1-pilot | 0 | 1 | 1 |
 
 ## Combined Report Delta by Repo
 
