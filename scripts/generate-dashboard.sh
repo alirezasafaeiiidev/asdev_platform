@@ -91,6 +91,55 @@ SECTION
     echo "| ${st} | ${prev} | ${curr} | ${delta} |" >> "$OUTPUT_FILE"
   done
 
+  clone_prev="$(count_combined_status "$combined_prev" "clone_failed")"
+  clone_curr="$(count_combined_status "$combined_curr" "clone_failed")"
+  clone_delta=$((clone_curr - clone_prev))
+
+  cat >> "$OUTPUT_FILE" <<SECTION
+
+## Combined Reliability (clone_failed)
+
+| Metric | Previous | Current | Delta |
+|---|---:|---:|---:|
+| clone_failed rows | ${clone_prev} | ${clone_curr} | ${clone_delta} |
+SECTION
+
+  cat >> "$OUTPUT_FILE" <<SECTION
+
+### clone_failed by Repository
+
+| Repository | Previous | Current | Delta |
+|---|---:|---:|---:|
+SECTION
+
+  mapfile -t clone_failed_repos < <(
+    {
+      if [[ -f "$combined_prev" ]]; then awk -F, 'NR>1 && $8=="clone_failed" {print $2}' "$combined_prev"; fi
+      if [[ -f "$combined_curr" ]]; then awk -F, 'NR>1 && $8=="clone_failed" {print $2}' "$combined_curr"; fi
+    } | sort -u
+  )
+
+  count_clone_failed_repo() {
+    local file="$1"
+    local repo="$2"
+    if [[ ! -f "$file" ]]; then
+      echo 0
+      return
+    fi
+    awk -F, -v r="$repo" 'NR>1 && $2==r && $8=="clone_failed" {c++} END{print c+0}' "$file"
+  }
+
+  if [[ "${#clone_failed_repos[@]}" -eq 0 ]]; then
+    echo "| n/a | 0 | 0 | 0 |" >> "$OUTPUT_FILE"
+  else
+    for repo in "${clone_failed_repos[@]}"; do
+      prev="$(count_clone_failed_repo "$combined_prev" "$repo")"
+      curr="$(count_clone_failed_repo "$combined_curr" "$repo")"
+      delta=$((curr - prev))
+      echo "| ${repo} | ${prev} | ${curr} | ${delta} |" >> "$OUTPUT_FILE"
+    done
+  fi
+
   cat >> "$OUTPUT_FILE" <<SECTION
 
 ## Combined Report Delta by Repo

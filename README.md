@@ -58,6 +58,7 @@ bash scripts/generate-dashboard.sh docs/platform-adoption-dashboard.md
   - `docs/platform-adoption-dashboard.md`
 - A weekly scheduled run (Mondays 09:00 UTC) regenerates the same outputs.
 - If generated outputs change, CI opens an automated PR.
+- For automation PRs, CI enables auto-merge only when changed files are limited to dashboard/report outputs.
 - If the combined report contains `clone_failed`, CI publishes a warning with the affected repositories.
 
 ## Phase B Deliverables

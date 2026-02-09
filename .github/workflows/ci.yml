@@ -8,6 +8,10 @@ on:
   schedule:
     - cron: '0 9 * * 1'
 
+concurrency:
+  group: asdev-platform-ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
@@ -36,6 +40,7 @@ jobs:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
     needs: lint-and-test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
     steps:
@@ -51,9 +56,9 @@ jobs:
       - name: Generate combined divergence report
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RETRY_ATTEMPTS: "5"
+          RETRY_ATTEMPTS: "4"
           RETRY_BASE_DELAY: "2"
-          CLONE_TIMEOUT_SECONDS: "60"
+          CLONE_TIMEOUT_SECONDS: "45"
         run: |
           bash platform/scripts/divergence-report-combined.sh \
             platform/repo-templates/templates.yaml \
@@ -67,6 +72,11 @@ jobs:
             echo "Repositories with clone_failed:"
             awk -F, 'NR>1 && $8=="clone_failed" {print "- " $1}' sync/divergence-report.combined.csv | sort -u
           fi
+
+      - name: Summarize divergence status counts
+        run: |
+          echo "Combined status counts:"
+          awk -F, 'NR>1{c[$8]++} END{for (k in c) print k","c[k]}' sync/divergence-report.combined.csv | sort
 
       - name: Generate dashboard
         run: bash scripts/generate-dashboard.sh docs/platform-adoption-dashboard.md
@@ -83,6 +93,7 @@ jobs:
     if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'schedule'
     needs: generate-reports-docs
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
       pull-requests: write
@@ -125,6 +136,43 @@ jobs:
           base: main
           labels: |
             asdev-sync
+
+      - name: Resolve update PR number
+        if: steps.generated_changes.outputs.has_changes == 'true'
+        id: resolve_pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_number="${{ steps.create_update_pr.outputs.pull-request-number }}"
+          if [[ -z "$pr_number" || "$pr_number" == "null" ]]; then
+            pr_number="$(gh pr list --head chore/reports-docs-update --base main --json number --jq '.[0].number' || true)"
+          fi
+          echo "pr_number=${pr_number}" >> "$GITHUB_OUTPUT"
+
+      - name: Guard auto-merge files
+        if: steps.generated_changes.outputs.has_changes == 'true' && steps.resolve_pr.outputs.pr_number != ''
+        id: guard_auto_merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pr_number="${{ steps.resolve_pr.outputs.pr_number }}"
+          mapfile -t changed_files < <(gh pr view "$pr_number" --json files --jq '.files[].path')
+          allowed=". docs/platform-adoption-dashboard.md sync/divergence-report.combined.csv"
+          safe="true"
+          for path in "${changed_files[@]}"; do
+            if [[ "$path" != "docs/platform-adoption-dashboard.md" && "$path" != "sync/divergence-report.combined.csv" ]]; then
+              safe="false"
+              echo "::warning::Auto-merge blocked due to non-allowed file: $path"
+            fi
+          done
+          echo "safe=${safe}" >> "$GITHUB_OUTPUT"
+
+      - name: Enable auto-merge
+        if: steps.generated_changes.outputs.has_changes == 'true' && steps.resolve_pr.outputs.pr_number != '' && steps.guard_auto_merge.outputs.safe == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr merge "${{ steps.resolve_pr.outputs.pr_number }}" --auto --squash --delete-branch
 
       - name: Report PR creation limitation
         if: steps.generated_changes.outputs.has_changes == 'true' && steps.create_update_pr.outcome == 'failure'
