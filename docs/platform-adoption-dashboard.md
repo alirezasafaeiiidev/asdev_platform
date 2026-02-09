@@ -1,6 +1,6 @@
 # Platform Adoption Dashboard
 
-- Generated at: 2026-02-09T22:58:40Z
+- Generated at: 2026-02-09T23:14:28Z
 - Latest Weekly Governance Digest: https://github.com/alirezasafaeiiidev/asdev_platform/issues/2
 
 ## Level 0 Adoption (from divergence report)
@@ -38,6 +38,14 @@
 |---|---:|---:|---:|
 | clone_failed rows | 2 | 2 | 0 |
 
+### clone_failed Trend by Run
+
+| Run | clone_failed rows |
+|---|---:|
+| 20260209T231318Z | 2 |
+| current | 2 |
+| previous | 2 |
+
 ### clone_failed by Repository
 
 | Repository | Previous | Current | Delta |
@@ -69,7 +77,7 @@
 
 | Run | Fingerprint | Delta |
 |---|---|---:|
-| 20260209T225727Z | auth_or_access | 0 |
+| 20260209T231318Z | auth_or_access | 0 |
 | current | auth_or_access | 0 |
 | previous | auth_or_access | 0 |
 
