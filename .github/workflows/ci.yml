@@ -102,7 +102,9 @@ jobs:
           fi
 
       - name: Create update PR
+        id: create_update_pr
         if: steps.generated_changes.outputs.has_changes == 'true'
+        continue-on-error: true
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -118,3 +120,9 @@ jobs:
           base: main
           labels: |
             asdev-sync
+
+      - name: Report PR creation limitation
+        if: steps.generated_changes.outputs.has_changes == 'true' && steps.create_update_pr.outcome == 'failure'
+        run: |
+          echo "::warning::Automated PR creation is blocked by repository settings."
+          echo "::warning::Enable 'Allow GitHub Actions to create and approve pull requests' to auto-open update PRs."
