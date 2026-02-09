@@ -29,15 +29,20 @@ require_key() {
   fi
 }
 
-require_key "schema_version"
-require_key "checksum_algorithm"
-require_key "validated_at"
-require_key "combined_file"
-require_key "errors_file"
-require_key "trend_file"
-require_key "combined_sha256"
-require_key "errors_sha256"
-require_key "trend_sha256"
+required_keys=(
+  "schema_version"
+  "checksum_algorithm"
+  "validated_at"
+  "combined_file"
+  "errors_file"
+  "trend_file"
+  "combined_sha256"
+  "errors_sha256"
+  "trend_sha256"
+)
+for key in "${required_keys[@]}"; do
+  require_key "$key"
+done
 
 schema_version="$(grep '^schema_version=' "$ATTESTATION_FILE" | cut -d= -f2-)"
 if [[ "$schema_version" != "$ATTESTATION_EXPECTED_SCHEMA_VERSION" ]]; then

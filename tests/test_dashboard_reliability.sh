@@ -75,6 +75,7 @@ error_fingerprint,previous,current,delta
 tls_error,0,1,1
 http_502,1,0,-1
 auth_or_access,0,2,2
+timeout,1,2,1
 CSV
 
 mkdir -p "${SYNC_DIR}/snapshots"
@@ -82,6 +83,7 @@ cat > "${SYNC_DIR}/snapshots/divergence-report.combined.errors.trend.20260209T10
 error_fingerprint,previous,current,delta
 tls_error,0,2,2
 auth_or_access,0,3,3
+timeout,0,5,5
 CSV
 cat > "${SYNC_DIR}/snapshots/divergence-report.combined.20260209T100000Z.csv" <<'CSV'
 target_file,repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at
@@ -154,6 +156,26 @@ grep -q "| previous | 2 |" "${OUTPUT_FILE}" || {
 
 grep -q "| 20260209T100000Z | 3 |" "${OUTPUT_FILE}" || {
   echo "Missing snapshot auth_or_access row" >&2
+  exit 1
+}
+
+grep -q "## timeout Trend by Run" "${OUTPUT_FILE}" || {
+  echo "Missing timeout trend section" >&2
+  exit 1
+}
+
+grep -q "| current | 1 |" "${OUTPUT_FILE}" || {
+  echo "Missing current timeout row" >&2
+  exit 1
+}
+
+grep -q "| previous | 2 |" "${OUTPUT_FILE}" || {
+  echo "Missing previous timeout row" >&2
+  exit 1
+}
+
+grep -q "| 20260209T100000Z | 5 |" "${OUTPUT_FILE}" || {
+  echo "Missing snapshot timeout row" >&2
   exit 1
 }
 

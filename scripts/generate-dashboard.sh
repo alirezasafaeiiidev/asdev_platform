@@ -11,6 +11,7 @@ FINGERPRINT_TOP_DELTA_LIMIT="${FINGERPRINT_TOP_DELTA_LIMIT:-5}"
 CLONE_FAILED_HISTORY_LIMIT="${CLONE_FAILED_HISTORY_LIMIT:-5}"
 UNKNOWN_TEMPLATE_HISTORY_LIMIT="${UNKNOWN_TEMPLATE_HISTORY_LIMIT:-5}"
 AUTH_OR_ACCESS_HISTORY_LIMIT="${AUTH_OR_ACCESS_HISTORY_LIMIT:-5}"
+TIMEOUT_HISTORY_LIMIT="${TIMEOUT_HISTORY_LIMIT:-5}"
 
 cd "$ROOT_DIR"
 
@@ -369,6 +370,46 @@ SECTION
       echo "| n/a | 0 |" >> "$OUTPUT_FILE"
     fi
     rm -f "$auth_history_tmp"
+
+    cat >> "$OUTPUT_FILE" <<SECTION
+
+## timeout Trend by Run
+
+| Run | timeout count |
+|---|---:|
+SECTION
+
+    timeout_history_tmp="$(mktemp)"
+    : > "$timeout_history_tmp"
+    get_timeout_current_count() {
+      local file="$1"
+      if [[ ! -f "$file" ]]; then
+        echo 0
+        return
+      fi
+      awk -F, 'NR>1 && $1=="timeout" {print $3; found=1} END{if(!found) print 0}' "$file"
+    }
+
+    if [[ -f "$trend_current" ]]; then
+      echo "current,$(get_timeout_current_count "$trend_current")" >> "$timeout_history_tmp"
+    fi
+    if [[ -f "$trend_previous" ]]; then
+      echo "previous,$(get_timeout_current_count "$trend_previous")" >> "$timeout_history_tmp"
+    fi
+    if [[ -d "sync/snapshots" ]]; then
+      mapfile -t timeout_history_files < <(find sync/snapshots -maxdepth 1 -type f -name 'divergence-report.combined.errors.trend.*.csv' | sort | tail -n "$TIMEOUT_HISTORY_LIMIT")
+      for file in "${timeout_history_files[@]}"; do
+        run_tag="$(basename "$file" | sed -E 's/^divergence-report\.combined\.errors\.trend\.([0-9TZ]+)\.csv$/\1/')"
+        echo "${run_tag},$(get_timeout_current_count "$file")" >> "$timeout_history_tmp"
+      done
+    fi
+
+    if [[ -s "$timeout_history_tmp" ]]; then
+      awk -F, '{printf "| %s | %s |\n", $1, $2}' "$timeout_history_tmp" | sort -u | head -n "$((TIMEOUT_HISTORY_LIMIT + 2))" >> "$OUTPUT_FILE"
+    else
+      echo "| n/a | 0 |" >> "$OUTPUT_FILE"
+    fi
+    rm -f "$timeout_history_tmp"
   fi
 
   cat >> "$OUTPUT_FILE" <<SECTION

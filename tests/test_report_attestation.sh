@@ -154,4 +154,30 @@ grep -q 'Unsupported attestation checksum_algorithm' "${WORK_DIR}/algo.err" || {
   exit 1
 }
 
+(
+  cd "$ROOT_DIR"
+  ATTESTATION_SCHEMA_VERSION=1 ATTESTATION_CHECKSUM_ALGORITHM=sha256 bash scripts/write-report-attestation.sh "$combined" "$errors" "$trend" "$attestation"
+)
+tmp_missing_key="${WORK_DIR}/attestation-missing-key.txt"
+grep -v '^errors_sha256=' "$attestation" > "$tmp_missing_key"
+mv "$tmp_missing_key" "$attestation"
+
+set +e
+(
+  cd "$ROOT_DIR"
+  bash scripts/validate-report-attestation.sh "$combined" "$errors" "$trend" "$attestation"
+) >"${WORK_DIR}/missing-key.out" 2>"${WORK_DIR}/missing-key.err"
+missing_key_status=$?
+set -e
+
+if [[ "$missing_key_status" -eq 0 ]]; then
+  echo "Expected missing key failure" >&2
+  exit 1
+fi
+
+grep -q 'Attestation key missing: errors_sha256' "${WORK_DIR}/missing-key.err" || {
+  echo "Missing deterministic missing-key error" >&2
+  exit 1
+}
+
 echo "report attestation checks passed."

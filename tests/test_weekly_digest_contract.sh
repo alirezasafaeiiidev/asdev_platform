@@ -69,6 +69,7 @@ chmod +x "${FAKE_BIN}/gh"
   PATH="${FAKE_BIN}:${PATH}" \
   DIGEST_OWNER="@owner-test" \
   DIGEST_REVIEW_SLA="48h" \
+  DIGEST_STALE_DRY_RUN=true \
   SKIP_REPORT_REGEN=true \
   GITHUB_STEP_SUMMARY="${STEP_SUMMARY}" \
   bash scripts/weekly-governance-digest.sh
@@ -116,6 +117,11 @@ grep -q "## Weekly Digest Stale Lifecycle" "${STEP_SUMMARY}" || {
 
 grep -q -- "- stale_evaluated_count:" "${STEP_SUMMARY}" || {
   echo "Missing stale evaluated metric in summary" >&2
+  exit 1
+}
+
+grep -q -- "- stale_dry_run_enabled: true" "${STEP_SUMMARY}" || {
+  echo "Missing stale dry-run enabled state in summary" >&2
   exit 1
 }
 
