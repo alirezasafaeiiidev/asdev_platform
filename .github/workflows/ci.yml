@@ -108,6 +108,19 @@ jobs:
           LATEST_WEEKLY_DIGEST_URL: ${{ steps.latest_digest.outputs.url }}
         run: bash scripts/generate-dashboard.sh docs/platform-adoption-dashboard.md
 
+      - name: Validate generated report schemas
+        run: |
+          bash scripts/validate-generated-reports.sh \
+            sync/divergence-report.combined.csv \
+            sync/divergence-report.combined.errors.csv \
+            sync/divergence-report.combined.errors.trend.csv
+
+      - name: Append fingerprint delta summary
+        run: |
+          bash scripts/summarize-error-fingerprint-trend.sh \
+            sync/divergence-report.combined.errors.trend.csv \
+            3 >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload generated outputs
         uses: actions/upload-artifact@v4
         with:

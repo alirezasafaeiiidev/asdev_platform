@@ -63,8 +63,9 @@ bash scripts/generate-dashboard.sh docs/platform-adoption-dashboard.md
 - If generated outputs change, CI opens or updates an automated PR.
 - For automation PRs, CI enables auto-merge only when changed files are limited to dashboard/report output files.
 - If the combined report contains `clone_failed`, CI publishes a warning with the affected repositories.
-- CI also publishes transient error fingerprint counts (for example `tls_error`, `http_502`, `timeout`) in logs, produces a compact fingerprint trend CSV artifact, and includes latest weekly digest URL in dashboard when available.
-- Weekly digest automation closes stale open digest issues beyond SLA (`DIGEST_STALE_DAYS`, default `8`) and references the active digest issue.
+- CI also publishes transient error fingerprint counts (for example `tls_error`, `http_502`, `timeout`) in logs, produces a compact fingerprint trend CSV artifact, and appends top increasing/decreasing fingerprint deltas to the workflow summary.
+- CI validates generated CSV schemas before report artifacts are uploaded and before downstream update PR automation proceeds.
+- Weekly digest automation closes stale open digest issues beyond SLA (`DIGEST_STALE_DAYS`, default `8`) and references the active digest issue; dry-run preview is available via `DIGEST_STALE_DRY_RUN=true`.
 
 ## Phase B Deliverables
 

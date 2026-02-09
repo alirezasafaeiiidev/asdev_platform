@@ -22,6 +22,8 @@ lint:
 	@bash -n scripts/rotate-report-snapshots.sh
 	@bash -n scripts/generate-error-fingerprint-trend.sh
 	@bash -n scripts/close-stale-weekly-digests.sh
+	@bash -n scripts/validate-generated-reports.sh
+	@bash -n scripts/summarize-error-fingerprint-trend.sh
 	@echo "Lint checks passed."
 
 test:

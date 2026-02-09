@@ -10,6 +10,7 @@ mkdir -p "${FAKE_BIN}"
 
 COMMENT_LOG="${WORK_DIR}/comment.log"
 CLOSE_LOG="${WORK_DIR}/close.log"
+DRY_RUN_LOG="${WORK_DIR}/dry-run.log"
 
 cat > "${FAKE_BIN}/gh" <<'GH'
 #!/usr/bin/env bash
@@ -72,3 +73,34 @@ if grep -q 'issue close 31' "${CLOSE_LOG}"; then
 fi
 
 echo "stale weekly digest lifecycle checks passed."
+
+(
+  cd "${ROOT_DIR}"
+  COMMENT_LOG_PATH="${COMMENT_LOG}" \
+  CLOSE_LOG_PATH="${CLOSE_LOG}" \
+  DIGEST_STALE_DAYS=7 \
+  DIGEST_STALE_DRY_RUN=true \
+  PATH="${FAKE_BIN}:${PATH}" \
+  bash scripts/close-stale-weekly-digests.sh \
+    "owner/repo" \
+    "30" \
+    "https://example.invalid/issues/30" \
+    "Weekly Governance Digest" > "${DRY_RUN_LOG}"
+)
+
+grep -q 'DRY_RUN stale digest candidate #2' "${DRY_RUN_LOG}" || {
+  echo "Expected dry-run stale candidate output for #2" >&2
+  exit 1
+}
+
+if [[ -s "${COMMENT_LOG}" && "$(wc -l < "${COMMENT_LOG}")" -gt 1 ]]; then
+  echo "Dry-run should not add new comment operations" >&2
+  exit 1
+fi
+
+if [[ -s "${CLOSE_LOG}" && "$(wc -l < "${CLOSE_LOG}")" -gt 1 ]]; then
+  echo "Dry-run should not add new close operations" >&2
+  exit 1
+fi
+
+echo "stale weekly digest dry-run checks passed."

@@ -11,6 +11,7 @@ CURRENT_ISSUE="$2"
 CURRENT_URL="$3"
 TITLE_PREFIX="${4:-Weekly Governance Digest}"
 STALE_DAYS="${DIGEST_STALE_DAYS:-8}"
+STALE_DRY_RUN="${DIGEST_STALE_DRY_RUN:-false}"
 
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -54,6 +55,11 @@ for row in "${digest_rows[@]}"; do
   age_days="$(( (now_epoch - updated_epoch) / 86400 ))"
 
   if [[ "$age_days" -lt "$STALE_DAYS" ]]; then
+    continue
+  fi
+
+  if [[ "$STALE_DRY_RUN" == "true" ]]; then
+    echo "DRY_RUN stale digest candidate #${issue_number} (${issue_url}) age_days=${age_days} threshold=${STALE_DAYS}"
     continue
   fi
 
