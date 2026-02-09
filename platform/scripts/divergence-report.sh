@@ -27,6 +27,32 @@ require_cmd gh
 require_cmd yq
 require_cmd git
 
+RETRY_ATTEMPTS="${RETRY_ATTEMPTS:-3}"
+RETRY_BASE_DELAY="${RETRY_BASE_DELAY:-2}"
+
+retry_cmd() {
+  local attempts="$1"
+  shift
+  local delay="$RETRY_BASE_DELAY"
+  local attempt=1
+
+  while true; do
+    if "$@"; then
+      return 0
+    fi
+
+    if [[ "$attempt" -ge "$attempts" ]]; then
+      echo "Command failed after ${attempts} attempts: $*" >&2
+      return 1
+    fi
+
+    echo "Transient failure (attempt ${attempt}/${attempts}). Retrying in ${delay}s..." >&2
+    sleep "$delay"
+    delay=$((delay * 2))
+    attempt=$((attempt + 1))
+  done
+}
+
 TARGETS_FILE="$(resolve_path "$TARGETS_FILE")"
 TEMPLATES_FILE="$(resolve_path "$TEMPLATES_FILE")"
 TEMPLATES_ROOT="$(resolve_path "$TEMPLATES_ROOT")"
@@ -75,7 +101,7 @@ for ((i=0; i<count_targets; i++)); do
 
   repo_dir="$work_root/${repo##*/}"
 
-  if ! gh repo clone "$repo" "$repo_dir" -- -q; then
+  if ! retry_cmd "$RETRY_ATTEMPTS" gh repo clone "$repo" "$repo_dir" -- -q; then
     echo "${repo},all,n/a,n/a,n/a,n/a,clone_failed,${DATE_NOW}" >> "$OUTPUT_FILE"
     continue
   fi

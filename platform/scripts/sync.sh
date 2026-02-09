@@ -28,6 +28,32 @@ require_cmd git
 require_cmd gh
 require_cmd yq
 
+RETRY_ATTEMPTS="${RETRY_ATTEMPTS:-3}"
+RETRY_BASE_DELAY="${RETRY_BASE_DELAY:-2}"
+
+retry_cmd() {
+  local attempts="$1"
+  shift
+  local delay="$RETRY_BASE_DELAY"
+  local attempt=1
+
+  while true; do
+    if "$@"; then
+      return 0
+    fi
+
+    if [[ "$attempt" -ge "$attempts" ]]; then
+      echo "Command failed after ${attempts} attempts: $*" >&2
+      return 1
+    fi
+
+    echo "Transient failure (attempt ${attempt}/${attempts}). Retrying in ${delay}s..." >&2
+    sleep "$delay"
+    delay=$((delay * 2))
+    attempt=$((attempt + 1))
+  done
+}
+
 TARGETS_FILE="$(resolve_path "$TARGETS_FILE")"
 TEMPLATES_FILE="$(resolve_path "$TEMPLATES_FILE")"
 TEMPLATES_ROOT="$(resolve_path "$TEMPLATES_ROOT")"
@@ -132,7 +158,7 @@ for ((i=0; i<count_targets; i++)); do
 
   echo "Processing: $repo"
 
-  if ! gh repo clone "$repo" "$repo_dir" -- -q; then
+  if ! retry_cmd "$RETRY_ATTEMPTS" gh repo clone "$repo" "$repo_dir" -- -q; then
     echo "Failed to clone $repo"
     ((failed+=1))
     continue
@@ -208,7 +234,7 @@ for ((i=0; i<count_targets; i++)); do
     labels_args+=(--label "$label")
   done
 
-  if gh pr create \
+  if retry_cmd "$RETRY_ATTEMPTS" gh pr create \
     --title "chore: ASDEV Level 0 sync" \
     --body-file "$pr_body_file" \
     --base "$default_branch" \
