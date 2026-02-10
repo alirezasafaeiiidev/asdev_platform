@@ -4,7 +4,9 @@
 - M1 complete: PR wave merged in required order (PR-1 -> PR-2 -> PR-4 -> PR-3).
 - M2 complete: reports regenerated and dashboard refreshed.
 - M6 complete: hub verification commands and target-repo CI-equivalent status snapshot recorded.
-- M3/M4/M5 remain open follow-up tasks.
+- M3 complete: `patreon_iran` quality gates upgraded to implementation-grade checks.
+- M4 complete: `persian_tools` webhook replay/timestamp policy and runbook/test coverage expanded.
+- M5 complete: resource-policy caps/logging operationalized in sync and combined divergence scripts.
 
 ## M1) Merge and close current standardization PR wave (high)
 - **Task ID:** M1

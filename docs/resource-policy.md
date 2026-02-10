@@ -32,6 +32,9 @@ These defaults are tuned for mid-range developer machines and should be reduced 
 - Keep retries bounded and logged for transient network operations.
 - Fail fast on deterministic errors; retry only transient classes.
 - Record command outcomes in PR evidence.
+- Runtime scripts now emit active resource-cap values at startup:
+  - `platform/scripts/sync.sh`
+  - `platform/scripts/divergence-report-combined.sh`
 
 ## Suggested Runtime Environment Variables
 

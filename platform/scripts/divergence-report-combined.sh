@@ -27,6 +27,16 @@ require_cmd bash
 require_cmd find
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ASDEV_CLONE_PARALLELISM="${ASDEV_CLONE_PARALLELISM:-3}"
+ASDEV_HEAVY_JOB_PARALLELISM="${ASDEV_HEAVY_JOB_PARALLELISM:-2}"
+ASDEV_WORKER_CAP="${ASDEV_WORKER_CAP:-6}"
+ASDEV_E2E_WORKERS="${ASDEV_E2E_WORKERS:-1}"
+TARGET_FILE_PARALLELISM="${TARGET_FILE_PARALLELISM:-$ASDEV_HEAVY_JOB_PARALLELISM}"
+if ! [[ "$TARGET_FILE_PARALLELISM" =~ ^[0-9]+$ ]] || [[ "$TARGET_FILE_PARALLELISM" -lt 1 ]]; then
+  TARGET_FILE_PARALLELISM=1
+fi
+echo "Resource policy (combined report): clone_parallelism=${ASDEV_CLONE_PARALLELISM} heavy_job_parallelism=${ASDEV_HEAVY_JOB_PARALLELISM} worker_cap=${ASDEV_WORKER_CAP} e2e_workers=${ASDEV_E2E_WORKERS} target_file_parallelism=${TARGET_FILE_PARALLELISM}"
+
 TEMPLATES_FILE="$(resolve_path "$TEMPLATES_FILE")"
 TEMPLATES_ROOT="$(resolve_path "$TEMPLATES_ROOT")"
 OUTPUT_FILE="$(resolve_path "$OUTPUT_FILE")"
@@ -67,18 +77,40 @@ if [[ "${#target_files[@]}" -eq 0 ]]; then
   exit 0
 fi
 
-for target_file in "${target_files[@]}"; do
-  tmp_csv="$(mktemp)"
-  tmp_errors_csv="$(mktemp)"
-  bash "${ROOT_DIR}/platform/scripts/divergence-report.sh" "$target_file" "$TEMPLATES_FILE" "$TEMPLATES_ROOT" "$tmp_csv" "$tmp_errors_csv"
+tmp_root="$(mktemp -d)"
+cleanup_tmp_root() { rm -rf "$tmp_root"; }
+trap cleanup_tmp_root EXIT
+
+pids=()
+for i in "${!target_files[@]}"; do
+  target_file="${target_files[$i]}"
+  (
+    tmp_csv="$tmp_root/report_${i}.csv"
+    tmp_errors_csv="$tmp_root/errors_${i}.csv"
+    bash "${ROOT_DIR}/platform/scripts/divergence-report.sh" "$target_file" "$TEMPLATES_FILE" "$TEMPLATES_ROOT" "$tmp_csv" "$tmp_errors_csv"
+    printf '%s\n' "$target_file" > "$tmp_root/target_${i}.txt"
+  ) &
+  pids+=("$!")
+
+  while [[ "$(jobs -rp | wc -l | tr -d ' ')" -ge "$TARGET_FILE_PARALLELISM" ]]; do
+    wait -n
+  done
+done
+
+for pid in "${pids[@]}"; do
+  wait "$pid"
+done
+
+for i in "${!target_files[@]}"; do
+  target_file="$(cat "$tmp_root/target_${i}.txt")"
+  tmp_csv="$tmp_root/report_${i}.csv"
+  tmp_errors_csv="$tmp_root/errors_${i}.csv"
   if [[ -s "$tmp_csv" ]]; then
     tail -n +2 "$tmp_csv" | awk -F, -v tf="$(basename "$target_file")" 'BEGIN{OFS=","} {print tf,$0}' >> "$OUTPUT_FILE"
   fi
   if [[ -s "$tmp_errors_csv" ]]; then
     tail -n +2 "$tmp_errors_csv" | awk -F, -v tf="$(basename "$target_file")" 'BEGIN{OFS=","} {print tf,$0}' >> "$ERRORS_OUTPUT_FILE"
   fi
-  rm -f "$tmp_csv"
-  rm -f "$tmp_errors_csv"
 done
 
 echo "Combined divergence report generated: $OUTPUT_FILE"
