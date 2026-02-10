@@ -28,12 +28,20 @@ require_cmd() {
 require_cmd git
 GH_BIN="${GH_BIN:-gh}"
 require_cmd "$GH_BIN"
+require_cmd timeout
 YQ_BIN="$("${ROOT_DIR}/scripts/ensure-yq.sh")"
 PATH="$(dirname "$YQ_BIN"):$PATH"
 require_cmd yq
 
 RETRY_ATTEMPTS="${RETRY_ATTEMPTS:-3}"
 RETRY_BASE_DELAY="${RETRY_BASE_DELAY:-2}"
+ASDEV_CLONE_PARALLELISM="${ASDEV_CLONE_PARALLELISM:-3}"
+ASDEV_HEAVY_JOB_PARALLELISM="${ASDEV_HEAVY_JOB_PARALLELISM:-2}"
+ASDEV_WORKER_CAP="${ASDEV_WORKER_CAP:-6}"
+ASDEV_E2E_WORKERS="${ASDEV_E2E_WORKERS:-1}"
+CLONE_TIMEOUT_SECONDS="${CLONE_TIMEOUT_SECONDS:-90}"
+
+echo "Resource policy (sync): clone_parallelism=${ASDEV_CLONE_PARALLELISM} heavy_job_parallelism=${ASDEV_HEAVY_JOB_PARALLELISM} worker_cap=${ASDEV_WORKER_CAP} e2e_workers=${ASDEV_E2E_WORKERS} clone_timeout_seconds=${CLONE_TIMEOUT_SECONDS}"
 
 retry_cmd() {
   local attempts="$1"
@@ -162,7 +170,7 @@ for ((i=0; i<count_targets; i++)); do
 
   echo "Processing: $repo"
 
-  if ! retry_cmd "$RETRY_ATTEMPTS" "$GH_BIN" repo clone "$repo" "$repo_dir" -- -q; then
+  if ! retry_cmd "$RETRY_ATTEMPTS" timeout "$CLONE_TIMEOUT_SECONDS" "$GH_BIN" repo clone "$repo" "$repo_dir" -- -q; then
     echo "Failed to clone $repo"
     ((failed+=1))
     continue
