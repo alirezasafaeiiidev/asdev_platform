@@ -79,7 +79,7 @@
 - [x] Add CI check that validates all target files reference known template IDs.
 
 ## Next Execution Tasks (Phase F)
-- [ ] Create Go pilot repository and execute first Go Level 1 rollout PR. (blocked: GitHub API timeout from execution environment)
+- [x] Create Go pilot repository and execute first Go Level 1 rollout PR. (done: https://github.com/alirezasafaeiiidev/go-level1-pilot/pull/1)
 - [x] Expand divergence report to include Level 1 targets (`targets.level1*.yaml`) in a combined report mode.
 - [x] Add PR comment bot workflow that posts divergence summary on sync PRs.
 - [x] Add policy check in CI that prevents template version changes without ADR/standard reference updates.
@@ -87,8 +87,29 @@
 
 ## Next Execution Tasks (Phase G)
 - Refer to `docs/phase-g-execution-plan.md` for prioritized execution order and DoD.
-- [ ] Retry Go pilot repository provisioning and run first Go Level 1 sync PR when GitHub API connectivity is stable. (blocked: GitHub API TLS handshake timeout)
-- [ ] Execute `scripts/weekly-governance-digest.sh` once manually and verify digest issue creation/update. (blocked: GitHub API TLS handshake timeout)
+- [x] Retry Go pilot repository provisioning and run first Go Level 1 sync PR when GitHub API connectivity is stable. (done: https://github.com/alirezasafaeiiidev/go-level1-pilot/pull/1)
+- [x] Execute `scripts/weekly-governance-digest.sh` once manually and verify digest issue creation/update. (done: https://github.com/alirezasafaeiiidev/asdev_platform/issues/99)
 - [x] Add combined-report trend section to dashboard (`sync/divergence-report.combined.csv` deltas).
 - [x] Add lightweight retry/backoff to scripts that call GitHub API-heavy operations (`sync.sh`, divergence scripts).
 - [x] Add runbook section for outage handling and recovery steps in `docs/`.
+
+## Next Execution Tasks (Phase H)
+- [x] Make sync PR creation resilient when labels are missing.
+- [x] Add regression test for PR label fallback flow.
+- [x] Re-run lint/test and confirm no regressions.
+
+## Next Execution Tasks (Phase I)
+- [x] Add `make ci-last-run-compact` target.
+- [x] Enforce deterministic `ci-last-run-json` fallback contract in tests.
+- [x] Add README shell automation example for `ci-last-run-json`.
+- [x] Re-run full validation (`make ci`).
+
+## Next Execution Tasks (Phase J)
+- [x] (reverted) Do not enable 5-minute auto-recovery workflow globally.
+- [x] Re-run full validation (`make lint` + `make test`).
+
+## Next Execution Tasks (Phase K)
+- [x] Remove `yq` PATH fragility by auto-bootstrapping it in all operational scripts that require it.
+- [x] Re-run reporting and weekly digest flows to verify no runtime `yq` errors remain.
+- [x] Stabilize dashboard reliability test by isolating snapshot fixtures from real snapshot history.
+- [x] Re-run full validation (`make ci`) after fixes.

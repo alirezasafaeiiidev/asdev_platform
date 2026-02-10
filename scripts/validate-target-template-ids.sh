@@ -3,11 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 MANIFEST="${1:-${ROOT_DIR}/platform/repo-templates/templates.yaml}"
-
-if ! command -v yq >/dev/null 2>&1; then
-  echo "Missing required command: yq" >&2
-  exit 1
-fi
+YQ_BIN="$("${ROOT_DIR}/scripts/ensure-yq.sh")"
+PATH="$(dirname "$YQ_BIN"):$PATH"
 
 if [[ ! -f "$MANIFEST" ]]; then
   echo "Manifest not found: $MANIFEST" >&2

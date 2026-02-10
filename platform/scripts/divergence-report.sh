@@ -24,12 +24,15 @@ require_cmd() {
   }
 }
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+YQ_BIN="$("${ROOT_DIR}/scripts/ensure-yq.sh")"
+PATH="$(dirname "$YQ_BIN"):$PATH"
+
 require_cmd gh
 require_cmd yq
 require_cmd git
 require_cmd timeout
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 RETRY_ATTEMPTS="${RETRY_ATTEMPTS:-3}"
 RETRY_BASE_DELAY="${RETRY_BASE_DELAY:-2}"
 CLONE_TIMEOUT_SECONDS="${CLONE_TIMEOUT_SECONDS:-30}"

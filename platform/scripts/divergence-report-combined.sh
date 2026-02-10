@@ -42,9 +42,28 @@ mkdir -p "$(dirname "$ERRORS_OUTPUT_FILE")"
 echo "target_file,repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at" > "$OUTPUT_FILE"
 echo "target_file,repo,error_fingerprint,last_checked_at" > "$ERRORS_OUTPUT_FILE"
 
-mapfile -t target_files < <(find "${ROOT_DIR}/sync" -maxdepth 1 -type f -name 'targets*.yaml' ! -name 'targets.example.yaml' | sort)
+target_glob_abs="$TARGET_GLOB"
+if [[ "$target_glob_abs" != /* ]]; then
+  target_glob_abs="$(pwd)/${target_glob_abs#./}"
+fi
+
+shopt -s nullglob
+expanded_target_files=( $target_glob_abs )
+shopt -u nullglob
+
+target_files=()
+for file in "${expanded_target_files[@]}"; do
+  [[ -f "$file" ]] || continue
+  [[ "$(basename "$file")" == "targets.example.yaml" ]] && continue
+  target_files+=("$file")
+done
+
+if [[ "${#target_files[@]}" -gt 0 ]]; then
+  mapfile -t target_files < <(printf '%s\n' "${target_files[@]}" | sort -u)
+fi
+
 if [[ "${#target_files[@]}" -eq 0 ]]; then
-  echo "No target files found under sync/"
+  echo "No target files found for glob: ${TARGET_GLOB}"
   exit 0
 fi
 

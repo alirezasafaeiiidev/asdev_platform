@@ -63,8 +63,13 @@
 5. G5
 
 ## چک‌لیست وضعیت فعلی
-- [ ] G1 انجام نشده (مسدود: GitHub API TLS handshake timeout)
-- [ ] G2 انجام نشده (مسدود: GitHub API TLS handshake timeout)
+- [x] G1 انجام شده
+  - Go pilot repo: `alirezasafaeiiidev/go-level1-pilot`
+  - Go Level 1 rollout PR: https://github.com/alirezasafaeiiidev/go-level1-pilot/pull/1
+  - CI status: passed (`lint`, `test`)
+- [x] G2 انجام شده
+  - Manual digest execution: `bash scripts/weekly-governance-digest.sh`
+  - Digest issue: https://github.com/alirezasafaeiiidev/asdev_platform/issues/99
 - [x] G3 انجام شده
 - [x] G4 انجام شده
 - [x] G5 انجام شده

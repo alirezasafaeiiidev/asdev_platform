@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DATE_TAG="$(date -u +%Y-%m-%d)"
 BRANCH_NAME="chore/asdev-monthly-release-${DATE_TAG}"
+BASE_BRANCH="${BASE_BRANCH:-main}"
+RELEASE_REPO="${RELEASE_REPO:-${GITHUB_REPOSITORY:-alirezasafaeiiidev/asdev_platform}}"
 source "${ROOT_DIR}/scripts/csv-utils.sh"
 
 require_cmd() {
@@ -28,15 +30,17 @@ status_count() {
 
 require_cmd git
 require_cmd gh
+YQ_BIN="$("${ROOT_DIR}/scripts/ensure-yq.sh")"
+PATH="$(dirname "$YQ_BIN"):$PATH"
 require_cmd yq
 
 cd "$ROOT_DIR"
 
-git fetch origin main
+git fetch origin "$BASE_BRANCH"
 if git show-ref --verify --quiet "refs/heads/${BRANCH_NAME}"; then
   git checkout "$BRANCH_NAME"
 else
-  git checkout -b "$BRANCH_NAME" origin/main
+  git checkout -b "$BRANCH_NAME" "origin/${BASE_BRANCH}"
 fi
 
 # 1) Save previous divergence snapshot for delta calculation
@@ -112,9 +116,9 @@ git commit -m "chore: monthly ASDEV release ${DATE_TAG}"
 git push -u origin "$BRANCH_NAME"
 
 gh pr create \
-  --repo alirezasafaeiiidev/asdev_platform \
+  --repo "$RELEASE_REPO" \
   --head "$BRANCH_NAME" \
-  --base main \
+  --base "$BASE_BRANCH" \
   --title "chore: monthly ASDEV release ${DATE_TAG}" \
   --body "Monthly release: template version bump, divergence snapshot, and governance update with divergence delta." \
   --label standards

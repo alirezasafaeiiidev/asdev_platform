@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: setup lint test run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json
+.PHONY: setup lint test run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact
 
 setup:
 	@command -v git >/dev/null || (echo "git is required" && exit 1)
@@ -77,6 +77,14 @@ ci-last-run-json:
 		exit 0; \
 	fi; \
 	gh run list --repo "$$repo" --limit 1 --json databaseId,status,conclusion,headSha --jq '.[0] // {}'
+
+ci-last-run-compact:
+	@repo="$${REPO:-alirezasafaeiiidev/asdev_platform}"; \
+	if [[ "$${GH_FORCE_MISSING:-false}" == "true" ]] || ! command -v gh >/dev/null 2>&1; then \
+		echo "n/a	n/a"; \
+		exit 0; \
+	fi; \
+	gh run list --repo "$$repo" --limit 1 --json databaseId,conclusion --jq '.[0] | [(.databaseId|tostring), (.conclusion // "n/a")] | @tsv'
 
 run:
 	@echo "ASDEV Platform is a standards/governance repository; use scripts under platform/scripts/."

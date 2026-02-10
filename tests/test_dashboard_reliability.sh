@@ -78,6 +78,7 @@ current,delta,error_fingerprint,previous
 2,1,timeout,1
 CSV
 
+rm -rf "${SYNC_DIR}/snapshots"
 mkdir -p "${SYNC_DIR}/snapshots"
 cat > "${SYNC_DIR}/snapshots/divergence-report.combined.errors.trend.20260209T100000Z.csv" <<'CSV'
 delta,current,previous,error_fingerprint

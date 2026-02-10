@@ -7,6 +7,7 @@ TEMPLATES_ROOT="${3:-platform/repo-templates}"
 DRY_RUN="${DRY_RUN:-false}"
 DATE_TAG="$(date +%Y%m%d)"
 FORCE_OVERWRITE_DOCS="${FORCE_OVERWRITE_DOCS:-false}"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 resolve_path() {
   local path_value="$1"
@@ -26,6 +27,8 @@ require_cmd() {
 
 require_cmd git
 require_cmd gh
+YQ_BIN="$("${ROOT_DIR}/scripts/ensure-yq.sh")"
+PATH="$(dirname "$YQ_BIN"):$PATH"
 require_cmd yq
 
 RETRY_ATTEMPTS="${RETRY_ATTEMPTS:-3}"
@@ -234,11 +237,24 @@ for ((i=0; i<count_targets; i++)); do
     labels_args+=(--label "$label")
   done
 
+  pr_created="false"
   if retry_cmd "$RETRY_ATTEMPTS" gh pr create \
     --title "chore: ASDEV Level 0 sync" \
     --body-file "$pr_body_file" \
     --base "$default_branch" \
     "${labels_args[@]}" >/dev/null; then
+    pr_created="true"
+  elif [[ "${#labels_args[@]}" -gt 0 ]]; then
+    echo "PR create with labels failed for $repo. Retrying without labels..."
+    if retry_cmd "$RETRY_ATTEMPTS" gh pr create \
+      --title "chore: ASDEV Level 0 sync" \
+      --body-file "$pr_body_file" \
+      --base "$default_branch" >/dev/null; then
+      pr_created="true"
+    fi
+  fi
+
+  if [[ "$pr_created" == "true" ]]; then
     echo "PR created for $repo"
     ((success+=1))
   else

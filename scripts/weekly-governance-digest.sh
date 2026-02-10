@@ -8,6 +8,7 @@ DIGEST_OWNER="${DIGEST_OWNER:-@alirezasafaeiiidev}"
 DIGEST_REVIEW_SLA="${DIGEST_REVIEW_SLA:-24h from issue update}"
 DIGEST_CLONE_FAILED_LIMIT="${DIGEST_CLONE_FAILED_LIMIT:-5}"
 DIGEST_COMBINED_FILE="${DIGEST_COMBINED_FILE:-sync/divergence-report.combined.csv}"
+DIGEST_REPO="${DIGEST_REPO:-${GITHUB_REPOSITORY:-alirezasafaeiiidev/asdev_platform}}"
 source "${ROOT_DIR}/scripts/csv-utils.sh"
 
 require_cmd() {
@@ -24,6 +25,8 @@ count_status() {
 }
 
 require_cmd gh
+YQ_BIN="$("${ROOT_DIR}/scripts/ensure-yq.sh")"
+PATH="$(dirname "$YQ_BIN"):$PATH"
 require_cmd yq
 
 cd "$ROOT_DIR"
@@ -57,7 +60,7 @@ actions_file="$(mktemp)"
 clone_failed_file="$(mktemp)"
 
 gh issue list \
-  --repo alirezasafaeiiidev/asdev_platform \
+  --repo "$DIGEST_REPO" \
   --state open \
   --limit 100 \
   --json number,title,url \
@@ -128,17 +131,17 @@ $(cat "$clone_failed_file")
 $(cat "$actions_file")
 BODY
 
-existing="$(gh issue list --repo alirezasafaeiiidev/asdev_platform --state open --search "${TITLE} in:title" --json number --jq '.[0].number // empty')"
+existing="$(gh issue list --repo "$DIGEST_REPO" --state open --search "${TITLE} in:title" --json number --jq '.[0].number // empty')"
 if [[ -n "$existing" ]]; then
-  gh issue comment "$existing" --repo alirezasafaeiiidev/asdev_platform --body-file "$body_file" >/dev/null
+  gh issue comment "$existing" --repo "$DIGEST_REPO" --body-file "$body_file" >/dev/null
   echo "Updated existing weekly digest issue #${existing}"
 else
-  gh issue create --repo alirezasafaeiiidev/asdev_platform --title "$TITLE" --body-file "$body_file" --label standards >/dev/null
+  gh issue create --repo "$DIGEST_REPO" --title "$TITLE" --body-file "$body_file" --label standards >/dev/null
   echo "Created weekly digest issue: ${TITLE}"
 fi
 
-current_issue_number="$(gh issue list --repo alirezasafaeiiidev/asdev_platform --state open --search "${TITLE} in:title" --json number --jq '.[0].number // empty')"
-current_issue_url="$(gh issue list --repo alirezasafaeiiidev/asdev_platform --state open --search "${TITLE} in:title" --json url --jq '.[0].url // empty')"
+current_issue_number="$(gh issue list --repo "$DIGEST_REPO" --state open --search "${TITLE} in:title" --json number --jq '.[0].number // empty')"
+current_issue_url="$(gh issue list --repo "$DIGEST_REPO" --state open --search "${TITLE} in:title" --json url --jq '.[0].url // empty')"
 stale_evaluated_count="0"
 stale_closed_count="0"
 stale_dry_run_candidates="0"
@@ -147,7 +150,7 @@ if [[ -n "$current_issue_number" && -n "$current_issue_url" ]]; then
   stale_summary_file="$(mktemp)"
   DIGEST_STALE_SUMMARY_FILE="$stale_summary_file" \
   bash scripts/close-stale-weekly-digests.sh \
-    "alirezasafaeiiidev/asdev_platform" \
+    "$DIGEST_REPO" \
     "$current_issue_number" \
     "$current_issue_url" \
     "Weekly Governance Digest"

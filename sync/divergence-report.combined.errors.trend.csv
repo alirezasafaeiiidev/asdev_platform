@@ -1,2 +1,4 @@
-error_fingerprint,previous,current,delta
-auth_or_access,2,2,0
+previous,error_fingerprint,delta,current
+1,tls_error,2,3
+2,timeout,-1,1
+1,auth_or_access,3,4

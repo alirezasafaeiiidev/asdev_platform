@@ -13,6 +13,8 @@ UNKNOWN_TEMPLATE_HISTORY_LIMIT="${UNKNOWN_TEMPLATE_HISTORY_LIMIT:-5}"
 AUTH_OR_ACCESS_HISTORY_LIMIT="${AUTH_OR_ACCESS_HISTORY_LIMIT:-5}"
 TIMEOUT_HISTORY_LIMIT="${TIMEOUT_HISTORY_LIMIT:-5}"
 source "${ROOT_DIR}/scripts/csv-utils.sh"
+YQ_BIN="$("${ROOT_DIR}/scripts/ensure-yq.sh")"
+PATH="$(dirname "$YQ_BIN"):$PATH"
 
 cd "$ROOT_DIR"
 
@@ -66,6 +68,80 @@ count_status() {
   csv_count_eq "$file" "status" "$status"
 }
 
+count_combined_status() {
+  local file="$1"
+  local status="$2"
+  csv_count_eq "$file" "status" "$status"
+}
+
+run_tag_from_combined_snapshot() {
+  local file="$1"
+  basename "$file" | sed -E 's/^divergence-report\.combined\.([0-9TZ]+)\.csv$/\1/'
+}
+
+run_tag_from_trend_snapshot() {
+  local file="$1"
+  basename "$file" | sed -E 's/^divergence-report\.combined\.errors\.trend\.([0-9TZ]+)\.csv$/\1/'
+}
+
+append_two_col_history_rows() {
+  local tmp_file="$1"
+  local limit="$2"
+  local fallback_row="$3"
+  if [[ -s "$tmp_file" ]]; then
+    awk -F, '{printf "| %s | %s |\n", $1, $2}' "$tmp_file" | sort -u | head -n "$limit" >> "$OUTPUT_FILE"
+  else
+    echo "$fallback_row" >> "$OUTPUT_FILE"
+  fi
+}
+
+collect_combined_status_history() {
+  local out_file="$1"
+  local status="$2"
+  local history_limit="$3"
+  echo "current,$(count_combined_status "$combined_curr" "$status")" >> "$out_file"
+  echo "previous,$(count_combined_status "$combined_prev" "$status")" >> "$out_file"
+  if [[ -d "sync/snapshots" ]]; then
+    mapfile -t history_files < <(find sync/snapshots -maxdepth 1 -type f -name 'divergence-report.combined.[0-9]*T[0-9]*Z.csv' | sort | tail -n "$history_limit")
+    for file in "${history_files[@]}"; do
+      run_tag="$(run_tag_from_combined_snapshot "$file")"
+      echo "${run_tag},$(count_combined_status "$file" "$status")" >> "$out_file"
+    done
+  fi
+}
+
+get_trend_current_count() {
+  local file="$1"
+  local fingerprint="$2"
+  local fp_idx current_idx
+  fp_idx="$(csv_col_idx "$file" "error_fingerprint")"
+  current_idx="$(csv_col_idx "$file" "current")"
+  if [[ -z "$fp_idx" || -z "$current_idx" ]]; then
+    echo 0
+    return
+  fi
+  awk -F, -v fi="$fp_idx" -v ci="$current_idx" -v fp="$fingerprint" 'NR>1 && $fi==fp {print $ci; found=1} END{if(!found) print 0}' "$file"
+}
+
+collect_trend_fingerprint_history() {
+  local out_file="$1"
+  local fingerprint="$2"
+  local history_limit="$3"
+  if [[ -f "$trend_current" ]]; then
+    echo "current,$(get_trend_current_count "$trend_current" "$fingerprint")" >> "$out_file"
+  fi
+  if [[ -f "$trend_previous" ]]; then
+    echo "previous,$(get_trend_current_count "$trend_previous" "$fingerprint")" >> "$out_file"
+  fi
+  if [[ -d "sync/snapshots" ]]; then
+    mapfile -t history_files < <(find sync/snapshots -maxdepth 1 -type f -name 'divergence-report.combined.errors.trend.*.csv' | sort | tail -n "$history_limit")
+    for file in "${history_files[@]}"; do
+      run_tag="$(run_tag_from_trend_snapshot "$file")"
+      echo "${run_tag},$(get_trend_current_count "$file" "$fingerprint")" >> "$out_file"
+    done
+  fi
+}
+
 prev_file="sync/divergence-report.previous.csv"
 curr_file="sync/divergence-report.csv"
 
@@ -87,12 +163,6 @@ if [[ -f "$combined_curr" ]]; then
 | Status | Previous | Current | Delta |
 |---|---:|---:|---:|
 SECTION
-
-  count_combined_status() {
-    local file="$1"
-    local status="$2"
-    csv_count_eq "$file" "status" "$status"
-  }
 
   for st in aligned diverged missing opted_out clone_failed unknown_template unknown; do
     prev="$(count_combined_status "$combined_prev" "$st")"
@@ -124,22 +194,8 @@ SECTION
 
   clone_failed_history_tmp="$(mktemp)"
   : > "$clone_failed_history_tmp"
-  echo "current,${clone_curr}" >> "$clone_failed_history_tmp"
-  echo "previous,${clone_prev}" >> "$clone_failed_history_tmp"
-  if [[ -d "sync/snapshots" ]]; then
-    mapfile -t combined_history_files < <(find sync/snapshots -maxdepth 1 -type f -name 'divergence-report.combined.[0-9]*T[0-9]*Z.csv' | sort | tail -n "$CLONE_FAILED_HISTORY_LIMIT")
-    for file in "${combined_history_files[@]}"; do
-      run_tag="$(basename "$file" | sed -E 's/^divergence-report\.combined\.([0-9TZ]+)\.csv$/\1/')"
-      run_clone_failed="$(count_combined_status "$file" "clone_failed")"
-      echo "${run_tag},${run_clone_failed}" >> "$clone_failed_history_tmp"
-    done
-  fi
-
-  if [[ -s "$clone_failed_history_tmp" ]]; then
-    awk -F, '{printf "| %s | %s |\n", $1, $2}' "$clone_failed_history_tmp" | sort -u | head -n "$((CLONE_FAILED_HISTORY_LIMIT + 2))" >> "$OUTPUT_FILE"
-  else
-    echo "| n/a | 0 |" >> "$OUTPUT_FILE"
-  fi
+  collect_combined_status_history "$clone_failed_history_tmp" "clone_failed" "$CLONE_FAILED_HISTORY_LIMIT"
+  append_two_col_history_rows "$clone_failed_history_tmp" "$((CLONE_FAILED_HISTORY_LIMIT + 2))" "| n/a | 0 |"
   rm -f "$clone_failed_history_tmp"
 
   unknown_template_prev="$(count_combined_status "$combined_prev" "unknown_template")"
@@ -155,22 +211,8 @@ SECTION
 
   unknown_template_history_tmp="$(mktemp)"
   : > "$unknown_template_history_tmp"
-  echo "current,${unknown_template_curr}" >> "$unknown_template_history_tmp"
-  echo "previous,${unknown_template_prev}" >> "$unknown_template_history_tmp"
-  if [[ -d "sync/snapshots" ]]; then
-    mapfile -t unknown_template_history_files < <(find sync/snapshots -maxdepth 1 -type f -name 'divergence-report.combined.[0-9]*T[0-9]*Z.csv' | sort | tail -n "$UNKNOWN_TEMPLATE_HISTORY_LIMIT")
-    for file in "${unknown_template_history_files[@]}"; do
-      run_tag="$(basename "$file" | sed -E 's/^divergence-report\.combined\.([0-9TZ]+)\.csv$/\1/')"
-      run_unknown_template="$(count_combined_status "$file" "unknown_template")"
-      echo "${run_tag},${run_unknown_template}" >> "$unknown_template_history_tmp"
-    done
-  fi
-
-  if [[ -s "$unknown_template_history_tmp" ]]; then
-    awk -F, '{printf "| %s | %s |\n", $1, $2}' "$unknown_template_history_tmp" | sort -u | head -n "$((UNKNOWN_TEMPLATE_HISTORY_LIMIT + 2))" >> "$OUTPUT_FILE"
-  else
-    echo "| n/a | 0 |" >> "$OUTPUT_FILE"
-  fi
+  collect_combined_status_history "$unknown_template_history_tmp" "unknown_template" "$UNKNOWN_TEMPLATE_HISTORY_LIMIT"
+  append_two_col_history_rows "$unknown_template_history_tmp" "$((UNKNOWN_TEMPLATE_HISTORY_LIMIT + 2))" "| n/a | 0 |"
   rm -f "$unknown_template_history_tmp"
 
   cat >> "$OUTPUT_FILE" <<SECTION
@@ -336,7 +378,7 @@ SECTION
     if [[ -d "sync/snapshots" ]]; then
       mapfile -t trend_history_files < <(find sync/snapshots -maxdepth 1 -type f -name 'divergence-report.combined.errors.trend.*.csv' | sort | tail -n "$FINGERPRINT_HISTORY_LIMIT")
       for file in "${trend_history_files[@]}"; do
-        run_tag="$(basename "$file" | sed -E 's/^divergence-report\.combined\.errors\.trend\.([0-9TZ]+)\.csv$/\1/')"
+        run_tag="$(run_tag_from_trend_snapshot "$file")"
         fp_idx="$(csv_col_idx "$file" "error_fingerprint")"
         delta_idx="$(csv_col_idx "$file" "delta")"
         if [[ -n "$fp_idx" && -n "$delta_idx" ]]; then
@@ -362,37 +404,8 @@ SECTION
 
     auth_history_tmp="$(mktemp)"
     : > "$auth_history_tmp"
-    get_auth_or_access_current_count() {
-      local file="$1"
-      local fp_idx current_idx
-      fp_idx="$(csv_col_idx "$file" "error_fingerprint")"
-      current_idx="$(csv_col_idx "$file" "current")"
-      if [[ -z "$fp_idx" || -z "$current_idx" ]]; then
-        echo 0
-        return
-      fi
-      awk -F, -v fi="$fp_idx" -v ci="$current_idx" 'NR>1 && $fi=="auth_or_access" {print $ci; found=1} END{if(!found) print 0}' "$file"
-    }
-
-    if [[ -f "$trend_current" ]]; then
-      echo "current,$(get_auth_or_access_current_count "$trend_current")" >> "$auth_history_tmp"
-    fi
-    if [[ -f "$trend_previous" ]]; then
-      echo "previous,$(get_auth_or_access_current_count "$trend_previous")" >> "$auth_history_tmp"
-    fi
-    if [[ -d "sync/snapshots" ]]; then
-      mapfile -t auth_history_files < <(find sync/snapshots -maxdepth 1 -type f -name 'divergence-report.combined.errors.trend.*.csv' | sort | tail -n "$AUTH_OR_ACCESS_HISTORY_LIMIT")
-      for file in "${auth_history_files[@]}"; do
-        run_tag="$(basename "$file" | sed -E 's/^divergence-report\.combined\.errors\.trend\.([0-9TZ]+)\.csv$/\1/')"
-        echo "${run_tag},$(get_auth_or_access_current_count "$file")" >> "$auth_history_tmp"
-      done
-    fi
-
-    if [[ -s "$auth_history_tmp" ]]; then
-      awk -F, '{printf "| %s | %s |\n", $1, $2}' "$auth_history_tmp" | sort -u | head -n "$((AUTH_OR_ACCESS_HISTORY_LIMIT + 2))" >> "$OUTPUT_FILE"
-    else
-      echo "| n/a | 0 |" >> "$OUTPUT_FILE"
-    fi
+    collect_trend_fingerprint_history "$auth_history_tmp" "auth_or_access" "$AUTH_OR_ACCESS_HISTORY_LIMIT"
+    append_two_col_history_rows "$auth_history_tmp" "$((AUTH_OR_ACCESS_HISTORY_LIMIT + 2))" "| n/a | 0 |"
     rm -f "$auth_history_tmp"
 
     cat >> "$OUTPUT_FILE" <<SECTION
@@ -405,37 +418,8 @@ SECTION
 
     timeout_history_tmp="$(mktemp)"
     : > "$timeout_history_tmp"
-    get_timeout_current_count() {
-      local file="$1"
-      local fp_idx current_idx
-      fp_idx="$(csv_col_idx "$file" "error_fingerprint")"
-      current_idx="$(csv_col_idx "$file" "current")"
-      if [[ -z "$fp_idx" || -z "$current_idx" ]]; then
-        echo 0
-        return
-      fi
-      awk -F, -v fi="$fp_idx" -v ci="$current_idx" 'NR>1 && $fi=="timeout" {print $ci; found=1} END{if(!found) print 0}' "$file"
-    }
-
-    if [[ -f "$trend_current" ]]; then
-      echo "current,$(get_timeout_current_count "$trend_current")" >> "$timeout_history_tmp"
-    fi
-    if [[ -f "$trend_previous" ]]; then
-      echo "previous,$(get_timeout_current_count "$trend_previous")" >> "$timeout_history_tmp"
-    fi
-    if [[ -d "sync/snapshots" ]]; then
-      mapfile -t timeout_history_files < <(find sync/snapshots -maxdepth 1 -type f -name 'divergence-report.combined.errors.trend.*.csv' | sort | tail -n "$TIMEOUT_HISTORY_LIMIT")
-      for file in "${timeout_history_files[@]}"; do
-        run_tag="$(basename "$file" | sed -E 's/^divergence-report\.combined\.errors\.trend\.([0-9TZ]+)\.csv$/\1/')"
-        echo "${run_tag},$(get_timeout_current_count "$file")" >> "$timeout_history_tmp"
-      done
-    fi
-
-    if [[ -s "$timeout_history_tmp" ]]; then
-      awk -F, '{printf "| %s | %s |\n", $1, $2}' "$timeout_history_tmp" | sort -u | head -n "$((TIMEOUT_HISTORY_LIMIT + 2))" >> "$OUTPUT_FILE"
-    else
-      echo "| n/a | 0 |" >> "$OUTPUT_FILE"
-    fi
+    collect_trend_fingerprint_history "$timeout_history_tmp" "timeout" "$TIMEOUT_HISTORY_LIMIT"
+    append_two_col_history_rows "$timeout_history_tmp" "$((TIMEOUT_HISTORY_LIMIT + 2))" "| n/a | 0 |"
     rm -f "$timeout_history_tmp"
   fi
 

@@ -102,12 +102,25 @@ gh auth status
 make digest-cleanup-dry-run
 make ci-last-run
 make ci-last-run-json
+make ci-last-run-compact
 ```
 
 - `make digest-cleanup-dry-run` resolves the latest open weekly digest and runs stale lifecycle cleanup in dry-run mode.
 - `make digest-cleanup-dry-run REPO=<owner/repo>` runs the same helper against another repository.
 - `make ci-last-run` prints the latest CI run status summary (`workflow`, `run id`, `status`, `conclusion`).
 - `make ci-last-run-json` prints machine-readable latest CI run status.
+- `make ci-last-run-compact` prints a compact single line (`run id<TAB>conclusion`).
+- `scripts/weekly-governance-digest.sh` supports `DIGEST_REPO` override (defaults to `$GITHUB_REPOSITORY` in CI).
+- `scripts/monthly-release.sh` supports `RELEASE_REPO` and `BASE_BRANCH` overrides for reusable rollout automation.
+
+Example shell automation:
+
+```bash
+run_json="$(make --no-print-directory ci-last-run-json)"
+run_id="$(printf '%s' "$run_json" | jq -r '.databaseId // "n/a"')"
+conclusion="$(printf '%s' "$run_json" | jq -r '.conclusion // "n/a"')"
+echo "run_id=${run_id} conclusion=${conclusion}"
+```
 
 ## Quick Operational Commands
 
@@ -115,6 +128,7 @@ make ci-last-run-json
 make ci
 make reports
 make ci-last-run
+make ci-last-run-compact
 make digest-cleanup-dry-run
 ```
 

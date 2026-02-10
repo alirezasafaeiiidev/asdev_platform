@@ -1,0 +1,4 @@
+delta,current,previous,error_fingerprint
+2,2,0,tls_error
+3,3,0,auth_or_access
+5,5,0,timeout

@@ -1,0 +1,5 @@
+current,delta,error_fingerprint,previous
+1,1,tls_error,0
+0,-1,http_502,1
+2,2,auth_or_access,0
+2,1,timeout,1
