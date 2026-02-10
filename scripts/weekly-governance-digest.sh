@@ -6,6 +6,7 @@ DATE_TAG="$(date -u +%Y-%m-%d)"
 TITLE="Weekly Governance Digest ${DATE_TAG}"
 DIGEST_OWNER="${DIGEST_OWNER:-@alirezasafaeiiidev}"
 DIGEST_REVIEW_SLA="${DIGEST_REVIEW_SLA:-24h from issue update}"
+source "${ROOT_DIR}/scripts/csv-utils.sh"
 
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -17,20 +18,7 @@ require_cmd() {
 count_status() {
   local file="$1"
   local status="$2"
-  if [[ ! -f "$file" ]]; then
-    echo 0
-    return
-  fi
-  awk -F, -v s="$status" '
-    NR==1 {
-      for (i=1; i<=NF; i++) {
-        if ($i == "status") status_idx = i
-      }
-      next
-    }
-    status_idx && $status_idx==s {c++}
-    END {print c+0}
-  ' "$file"
+  csv_count_eq "$file" "status" "$status"
 }
 
 require_cmd gh

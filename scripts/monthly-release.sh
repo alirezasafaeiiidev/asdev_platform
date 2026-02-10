@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DATE_TAG="$(date -u +%Y-%m-%d)"
 BRANCH_NAME="chore/asdev-monthly-release-${DATE_TAG}"
+source "${ROOT_DIR}/scripts/csv-utils.sh"
 
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
@@ -22,20 +23,7 @@ bump_patch() {
 status_count() {
   local csv_file="$1"
   local status="$2"
-  if [[ ! -f "$csv_file" ]]; then
-    echo 0
-    return
-  fi
-  awk -F, -v s="$status" '
-    NR==1 {
-      for (i=1; i<=NF; i++) {
-        if ($i == "status") status_idx = i
-      }
-      next
-    }
-    status_idx && $status_idx==s {c++}
-    END {print c+0}
-  ' "$csv_file"
+  csv_count_eq "$csv_file" "status" "$status"
 }
 
 require_cmd git

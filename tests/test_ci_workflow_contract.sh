@@ -34,6 +34,11 @@ grep -q 'name: Validate report attestation presence' "${WORKFLOW_FILE}" || {
   exit 1
 }
 
+grep -q 'name: Append clone_failed summary' "${WORKFLOW_FILE}" || {
+  echo "Missing clone_failed summary step" >&2
+  exit 1
+}
+
 grep -q 'name: Enforce attestation file in update PR' "${WORKFLOW_FILE}" || {
   echo "Missing update PR attestation enforcement step" >&2
   exit 1

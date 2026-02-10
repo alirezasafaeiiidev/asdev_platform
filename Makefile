@@ -28,6 +28,7 @@ lint:
 	@bash -n scripts/validate-report-attestation.sh
 	@bash -n scripts/close-stale-report-update-prs.sh
 	@bash -n scripts/summarize-clone-failed.sh
+	@bash -n scripts/csv-utils.sh
 	@echo "Lint checks passed."
 
 test:

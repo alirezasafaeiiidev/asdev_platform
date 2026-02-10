@@ -4,6 +4,8 @@ set -euo pipefail
 PREV_FILE="${1:-sync/divergence-report.combined.errors.previous.csv}"
 CURR_FILE="${2:-sync/divergence-report.combined.errors.csv}"
 OUTPUT_FILE="${3:-sync/divergence-report.combined.errors.trend.csv}"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "${ROOT_DIR}/scripts/csv-utils.sh"
 
 mkdir -p "$(dirname "${OUTPUT_FILE}")"
 echo "error_fingerprint,previous,current,delta" > "${OUTPUT_FILE}"
@@ -13,21 +15,6 @@ if [[ ! -f "${CURR_FILE}" ]]; then
   exit 1
 fi
 
-csv_col_index() {
-  local file="$1"
-  local name="$2"
-  awk -F, -v n="$name" '
-    NR==1 {
-      for (i=1; i<=NF; i++) {
-        if ($i == n) {
-          print i
-          exit
-        }
-      }
-    }
-  ' "$file"
-}
-
 extract_column_values() {
   local file="$1"
   local name="$2"
@@ -35,7 +22,7 @@ extract_column_values() {
     return
   fi
   local idx
-  idx="$(csv_col_index "$file" "$name")"
+  idx="$(csv_col_idx "$file" "$name")"
   if [[ -z "$idx" ]]; then
     return
   fi
@@ -63,7 +50,7 @@ count_for() {
     return
   fi
   local idx
-  idx="$(csv_col_index "$file" "error_fingerprint")"
+  idx="$(csv_col_idx "$file" "error_fingerprint")"
   if [[ -z "$idx" ]]; then
     echo 0
     return

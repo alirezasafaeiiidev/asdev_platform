@@ -3,26 +3,13 @@ set -euo pipefail
 
 TREND_FILE="${1:-sync/divergence-report.combined.errors.trend.csv}"
 TOP_N="${2:-3}"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+source "${ROOT_DIR}/scripts/csv-utils.sh"
 
 if [[ ! -f "$TREND_FILE" ]]; then
   echo "Missing trend file: $TREND_FILE" >&2
   exit 1
 fi
-
-csv_col_idx() {
-  local file="$1"
-  local name="$2"
-  awk -F, -v n="$name" '
-    NR==1 {
-      for (i=1; i<=NF; i++) {
-        if ($i == n) {
-          print i
-          exit
-        }
-      }
-    }
-  ' "$file"
-}
 
 echo "## Error Fingerprint Delta Summary"
 echo ""
