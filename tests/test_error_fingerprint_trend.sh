@@ -10,17 +10,17 @@ CURR="${WORK_DIR}/curr.csv"
 OUT="${WORK_DIR}/trend.csv"
 
 cat > "${PREV}" <<'CSV'
-target_file,repo,error_fingerprint,last_checked_at
-a.yaml,org/repo,tls_error,2026-02-08T00:00:00Z
-a.yaml,org/repo,tls_error,2026-02-08T00:00:00Z
-a.yaml,org/repo,http_502,2026-02-08T00:00:00Z
+repo,error_fingerprint,target_file,last_checked_at
+org/repo,tls_error,a.yaml,2026-02-08T00:00:00Z
+org/repo,tls_error,a.yaml,2026-02-08T00:00:00Z
+org/repo,http_502,a.yaml,2026-02-08T00:00:00Z
 CSV
 
 cat > "${CURR}" <<'CSV'
-target_file,repo,error_fingerprint,last_checked_at
-a.yaml,org/repo,tls_error,2026-02-09T00:00:00Z
-a.yaml,org/repo,timeout,2026-02-09T00:00:00Z
-a.yaml,org/repo,timeout,2026-02-09T00:00:00Z
+last_checked_at,target_file,error_fingerprint,repo
+2026-02-09T00:00:00Z,a.yaml,tls_error,org/repo
+2026-02-09T00:00:00Z,a.yaml,timeout,org/repo
+2026-02-09T00:00:00Z,a.yaml,timeout,org/repo
 CSV
 
 (

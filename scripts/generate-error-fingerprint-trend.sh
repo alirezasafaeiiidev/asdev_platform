@@ -13,10 +13,39 @@ if [[ ! -f "${CURR_FILE}" ]]; then
   exit 1
 fi
 
+csv_col_index() {
+  local file="$1"
+  local name="$2"
+  awk -F, -v n="$name" '
+    NR==1 {
+      for (i=1; i<=NF; i++) {
+        if ($i == n) {
+          print i
+          exit
+        }
+      }
+    }
+  ' "$file"
+}
+
+extract_column_values() {
+  local file="$1"
+  local name="$2"
+  if [[ ! -f "$file" ]]; then
+    return
+  fi
+  local idx
+  idx="$(csv_col_index "$file" "$name")"
+  if [[ -z "$idx" ]]; then
+    return
+  fi
+  awk -F, -v i="$idx" 'NR>1 {print $i}' "$file"
+}
+
 mapfile -t fingerprints < <(
   {
-    if [[ -f "${PREV_FILE}" ]]; then awk -F, 'NR>1 {print $3}' "${PREV_FILE}"; fi
-    awk -F, 'NR>1 {print $3}' "${CURR_FILE}"
+    extract_column_values "${PREV_FILE}" "error_fingerprint"
+    extract_column_values "${CURR_FILE}" "error_fingerprint"
   } | sed '/^$/d' | sort -u
 )
 
@@ -33,7 +62,13 @@ count_for() {
     echo 0
     return
   fi
-  awk -F, -v fp="$fingerprint" 'NR>1 && $3==fp {c++} END {print c+0}' "$file"
+  local idx
+  idx="$(csv_col_index "$file" "error_fingerprint")"
+  if [[ -z "$idx" ]]; then
+    echo 0
+    return
+  fi
+  awk -F, -v fp="$fingerprint" -v i="$idx" 'NR>1 && $i==fp {c++} END {print c+0}' "$file"
 }
 
 for fp in "${fingerprints[@]}"; do

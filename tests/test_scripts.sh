@@ -23,5 +23,6 @@ bash tests/test_template_version_policy.sh
 bash tests/test_make_ci_target.sh
 bash tests/test_make_reports_target.sh
 bash tests/test_summarize_clone_failed.sh
+bash tests/test_ci_workflow_contract.sh
 
 echo "Script checks passed."

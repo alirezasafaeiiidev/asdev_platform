@@ -9,6 +9,21 @@ if [[ ! -f "$TREND_FILE" ]]; then
   exit 1
 fi
 
+csv_col_idx() {
+  local file="$1"
+  local name="$2"
+  awk -F, -v n="$name" '
+    NR==1 {
+      for (i=1; i<=NF; i++) {
+        if ($i == n) {
+          print i
+          exit
+        }
+      }
+    }
+  ' "$file"
+}
+
 echo "## Error Fingerprint Delta Summary"
 echo ""
 echo "- Source: \
@@ -21,8 +36,18 @@ if [[ "$total_rows" -eq 0 ]]; then
   exit 0
 fi
 
-mapfile -t positive < <(awk -F, 'NR>1 && ($4+0)>0 {print $0}' "$TREND_FILE" | sort -t, -k4,4nr | head -n "$TOP_N")
-mapfile -t negative < <(awk -F, 'NR>1 && ($4+0)<0 {print $0}' "$TREND_FILE" | sort -t, -k4,4n | head -n "$TOP_N")
+fp_idx="$(csv_col_idx "$TREND_FILE" "error_fingerprint")"
+prev_idx="$(csv_col_idx "$TREND_FILE" "previous")"
+curr_idx="$(csv_col_idx "$TREND_FILE" "current")"
+delta_idx="$(csv_col_idx "$TREND_FILE" "delta")"
+
+if [[ -z "$fp_idx" || -z "$prev_idx" || -z "$curr_idx" || -z "$delta_idx" ]]; then
+  echo "Missing required trend columns in: $TREND_FILE" >&2
+  exit 1
+fi
+
+mapfile -t positive < <(awk -F, -v fi="$fp_idx" -v pi="$prev_idx" -v ci="$curr_idx" -v di="$delta_idx" 'NR>1 && ($di+0)>0 {print $fi "," $pi "," $ci "," $di}' "$TREND_FILE" | sort -t, -k4,4nr | head -n "$TOP_N")
+mapfile -t negative < <(awk -F, -v fi="$fp_idx" -v pi="$prev_idx" -v ci="$curr_idx" -v di="$delta_idx" 'NR>1 && ($di+0)<0 {print $fi "," $pi "," $ci "," $di}' "$TREND_FILE" | sort -t, -k4,4n | head -n "$TOP_N")
 
 print_table() {
   local title="$1"

@@ -37,59 +37,59 @@ if [[ -d "${SYNC_DIR}/snapshots" ]]; then
 fi
 
 cat > "${SYNC_DIR}/divergence-report.csv" <<'CSV'
-repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at
-example/repo-a,pr-template,1.0.0,1.0.0,required,ref,aligned,2026-02-09T00:00:00Z
+repo,template_id,expected_version,detected_version,mode,source_ref,last_checked_at,status
+example/repo-a,pr-template,1.0.0,1.0.0,required,ref,2026-02-09T00:00:00Z,aligned
 CSV
 
 cat > "${SYNC_DIR}/divergence-report.previous.csv" <<'CSV'
-repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at
-example/repo-a,pr-template,1.0.0,1.0.0,required,ref,aligned,2026-02-08T00:00:00Z
+repo,template_id,expected_version,detected_version,mode,source_ref,last_checked_at,status
+example/repo-a,pr-template,1.0.0,1.0.0,required,ref,2026-02-08T00:00:00Z,aligned
 CSV
 
 cat > "${SYNC_DIR}/divergence-report.combined.previous.csv" <<'CSV'
-target_file,repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at
-targets.yaml,example/repo-a,pr-template,1.0.0,missing,required,ref,clone_failed,2026-02-08T00:00:00Z
-targets.yaml,example/repo-c,pr-template,1.0.0,1.0.0,required,ref,aligned,2026-02-08T00:00:00Z
-targets.yaml,example/repo-d,pr-template,1.0.0,missing,required,ref,unknown_template,2026-02-08T00:00:00Z
+target_file,repo,template_id,expected_version,detected_version,mode,source_ref,last_checked_at,status
+targets.yaml,example/repo-a,pr-template,1.0.0,missing,required,ref,2026-02-08T00:00:00Z,clone_failed
+targets.yaml,example/repo-c,pr-template,1.0.0,1.0.0,required,ref,2026-02-08T00:00:00Z,aligned
+targets.yaml,example/repo-d,pr-template,1.0.0,missing,required,ref,2026-02-08T00:00:00Z,unknown_template
 CSV
 
 cat > "${SYNC_DIR}/divergence-report.combined.csv" <<'CSV'
-target_file,repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at
-targets.yaml,example/repo-a,pr-template,1.0.0,missing,required,ref,clone_failed,2026-02-09T00:00:00Z
-targets.yaml,example/repo-a,issue-bug,1.0.0,missing,required,ref,clone_failed,2026-02-09T00:00:00Z
-targets.yaml,example/repo-b,pr-template,1.0.0,missing,required,ref,clone_failed,2026-02-09T00:00:00Z
-targets.yaml,example/repo-c,pr-template,1.0.0,1.0.0,required,ref,aligned,2026-02-09T00:00:00Z
-targets.yaml,example/repo-d,pr-template,1.0.0,missing,required,ref,unknown_template,2026-02-09T00:00:00Z
-targets.yaml,example/repo-e,pr-template,1.0.0,missing,required,ref,unknown_template,2026-02-09T00:00:00Z
+target_file,repo,template_id,expected_version,detected_version,mode,source_ref,last_checked_at,status
+targets.yaml,example/repo-a,pr-template,1.0.0,missing,required,ref,2026-02-09T00:00:00Z,clone_failed
+targets.yaml,example/repo-a,issue-bug,1.0.0,missing,required,ref,2026-02-09T00:00:00Z,clone_failed
+targets.yaml,example/repo-b,pr-template,1.0.0,missing,required,ref,2026-02-09T00:00:00Z,clone_failed
+targets.yaml,example/repo-c,pr-template,1.0.0,1.0.0,required,ref,2026-02-09T00:00:00Z,aligned
+targets.yaml,example/repo-d,pr-template,1.0.0,missing,required,ref,2026-02-09T00:00:00Z,unknown_template
+targets.yaml,example/repo-e,pr-template,1.0.0,missing,required,ref,2026-02-09T00:00:00Z,unknown_template
 CSV
 
 cat > "${SYNC_DIR}/divergence-report.combined.errors.trend.csv" <<'CSV'
-error_fingerprint,previous,current,delta
-tls_error,1,3,2
-timeout,2,1,-1
-auth_or_access,1,4,3
+previous,error_fingerprint,delta,current
+1,tls_error,2,3
+2,timeout,-1,1
+1,auth_or_access,3,4
 CSV
 
 cat > "${SYNC_DIR}/divergence-report.combined.errors.trend.previous.csv" <<'CSV'
-error_fingerprint,previous,current,delta
-tls_error,0,1,1
-http_502,1,0,-1
-auth_or_access,0,2,2
-timeout,1,2,1
+current,delta,error_fingerprint,previous
+1,1,tls_error,0
+0,-1,http_502,1
+2,2,auth_or_access,0
+2,1,timeout,1
 CSV
 
 mkdir -p "${SYNC_DIR}/snapshots"
 cat > "${SYNC_DIR}/snapshots/divergence-report.combined.errors.trend.20260209T100000Z.csv" <<'CSV'
-error_fingerprint,previous,current,delta
-tls_error,0,2,2
-auth_or_access,0,3,3
-timeout,0,5,5
+delta,current,previous,error_fingerprint
+2,2,0,tls_error
+3,3,0,auth_or_access
+5,5,0,timeout
 CSV
 cat > "${SYNC_DIR}/snapshots/divergence-report.combined.20260209T100000Z.csv" <<'CSV'
-target_file,repo,template_id,expected_version,detected_version,mode,source_ref,status,last_checked_at
-targets.yaml,example/repo-a,pr-template,1.0.0,missing,required,ref,clone_failed,2026-02-09T10:00:00Z
-targets.yaml,example/repo-b,pr-template,1.0.0,missing,required,ref,clone_failed,2026-02-09T10:00:00Z
-targets.yaml,example/repo-d,pr-template,1.0.0,missing,required,ref,unknown_template,2026-02-09T10:00:00Z
+target_file,repo,template_id,expected_version,detected_version,mode,source_ref,last_checked_at,status
+targets.yaml,example/repo-a,pr-template,1.0.0,missing,required,ref,2026-02-09T10:00:00Z,clone_failed
+targets.yaml,example/repo-b,pr-template,1.0.0,missing,required,ref,2026-02-09T10:00:00Z,clone_failed
+targets.yaml,example/repo-d,pr-template,1.0.0,missing,required,ref,2026-02-09T10:00:00Z,unknown_template
 CSV
 
 bash "${ROOT_DIR}/scripts/generate-dashboard.sh" "${OUTPUT_FILE}"

@@ -28,7 +28,7 @@ require_cmd gh
 require_cmd date
 require_cmd awk
 
-now_epoch="$(date -u +%s)"
+now_epoch="${REPORT_UPDATE_PR_NOW_EPOCH:-$(date -u +%s)}"
 
 mapfile -t prs < <(
   gh pr list \

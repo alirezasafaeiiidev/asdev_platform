@@ -21,7 +21,16 @@ count_status() {
     echo 0
     return
   fi
-  awk -F, -v s="$status" 'NR>1 && $7==s {c++} END{print c+0}' "$file"
+  awk -F, -v s="$status" '
+    NR==1 {
+      for (i=1; i<=NF; i++) {
+        if ($i == "status") status_idx = i
+      }
+      next
+    }
+    status_idx && $status_idx==s {c++}
+    END {print c+0}
+  ' "$file"
 }
 
 require_cmd gh
