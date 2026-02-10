@@ -159,10 +159,23 @@ echo "run_id=${run_id} conclusion=${conclusion}"
 ```bash
 make ci
 make reports
+make agent-generate
 make ci-last-run
 make ci-last-run-compact
 make digest-cleanup-dry-run
 ```
+
+## Agent Rollout
+
+```bash
+# preview summary only
+make agent-generate
+
+# apply AGENT.md generation in temp clones
+APPLY=true make agent-generate
+```
+
+- See `docs/agent-rollout.md` for the end-to-end workflow and PR strategy.
 
 ## Phase B Deliverables
 

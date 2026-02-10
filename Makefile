@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: setup lint test run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact
+.PHONY: setup lint test run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact agent-generate
 
 setup:
 	@command -v git >/dev/null || (echo "git is required" && exit 1)
@@ -87,6 +87,16 @@ ci-last-run-compact:
 		exit 0; \
 	fi; \
 	gh run list --repo "$$repo" --limit 1 --json databaseId,conclusion --jq '.[0] | [(.databaseId|tostring), (.conclusion // "n/a")] | @tsv'
+
+agent-generate:
+	@owner="$${OWNER:-alirezasafaeiiidev}"; \
+	repos="$${REPOS:-asdev_platform persian_tools my_portfolio patreon_iran go-level1-pilot python-level1-pilot}"; \
+	workdir="$${WORKDIR:-/tmp/asdev-agent-gen}"; \
+	if [[ "$${APPLY:-false}" == "true" ]]; then \
+		python3 platform/scripts/generate-agent-md.py --owner "$$owner" --workdir "$$workdir" --apply --repos $$repos; \
+	else \
+		python3 platform/scripts/generate-agent-md.py --owner "$$owner" --workdir "$$workdir" --repos $$repos; \
+	fi
 
 run:
 	@echo "ASDEV Platform is a standards/governance repository; use scripts under platform/scripts/."
