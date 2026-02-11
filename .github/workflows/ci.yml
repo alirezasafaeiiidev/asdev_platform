@@ -32,6 +32,9 @@ jobs:
       - name: Lint
         run: make lint
 
+      - name: Repository Hygiene
+        run: make hygiene
+
       - name: Policy Check
         run: bash scripts/validate-template-version-policy.sh origin/main
 

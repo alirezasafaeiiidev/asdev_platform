@@ -39,6 +39,8 @@ bash tests/test_make_ci_last_run_target.sh
 bash tests/test_make_ci_last_run_fallback.sh
 bash tests/test_make_ci_last_run_compact_target.sh
 bash tests/test_make_ci_last_run_compact_fallback.sh
+bash tests/test_make_hygiene_target.sh
+bash tests/test_repo_hygiene.sh
 bash scripts/validate-agent-pack.sh
 
 echo "Script checks passed."

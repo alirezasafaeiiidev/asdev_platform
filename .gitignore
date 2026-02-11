@@ -6,3 +6,11 @@ sync/divergence-report.csv
 
 # Temporary files
 *.tmp
+
+# Python cache artifacts
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS metadata
+.DS_Store

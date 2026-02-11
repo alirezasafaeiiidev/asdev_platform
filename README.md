@@ -22,6 +22,7 @@ Core process contracts:
   - `platform/agent/REPO_LENSES.md`
   - `platform/scripts/generate-agent-md.py`
 - Resource execution policy: `docs/resource-policy.md`
+- Repository hygiene policy: `docs/repo-hygiene.md`
 
 This repository does not own consumer-repo business logic.
 
@@ -47,12 +48,9 @@ asdev_platform/
 ├─ standards/
 ├─ platform/
 ├─ sync/
-├─ brand/
-├─ src/
 ├─ tests/
 ├─ docs/
-├─ scripts/
-└─ assets/
+└─ scripts/
 ```
 
 ## Quickstart
@@ -64,6 +62,7 @@ make ci
 make test
 make reports
 make run
+make hygiene
 ```
 
 `make test` always runs the full test suite and does not skip `yq`-dependent checks.
@@ -139,6 +138,7 @@ make ci-last-run-compact
 - `make ci-last-run-compact` prints a compact single line (`run id<TAB>conclusion`).
 - `scripts/weekly-governance-digest.sh` supports `DIGEST_REPO` override (defaults to `$GITHUB_REPOSITORY` in CI).
 - `scripts/monthly-release.sh` supports `RELEASE_REPO` and `BASE_BRANCH` overrides for reusable rollout automation.
+- `make hygiene` runs repository hygiene checks (cache artifacts and empty directory detection).
 
 ## Public Data Policy
 
@@ -164,6 +164,7 @@ make agent-generate
 make ci-last-run
 make ci-last-run-compact
 make digest-cleanup-dry-run
+make hygiene
 ```
 
 ## Agent Rollout

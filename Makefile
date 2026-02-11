@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: setup lint test run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact agent-generate
+.PHONY: setup lint test run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact agent-generate hygiene
 
 setup:
 	@command -v git >/dev/null || (echo "git is required" && exit 1)
@@ -13,6 +13,7 @@ lint:
 	@bash -n platform/scripts/divergence-report.sh
 	@bash -n platform/scripts/divergence-report-combined.sh
 	@python3 -m py_compile platform/scripts/generate-agent-md.py
+	@rm -rf platform/scripts/__pycache__
 	@bash scripts/validate-agent-pack.sh
 	@bash -n scripts/monthly-release.sh
 	@bash -n scripts/generate-dashboard.sh
@@ -34,6 +35,8 @@ lint:
 	@bash -n scripts/csv-utils.sh
 	@bash -n scripts/normalize-report-output.sh
 	@bash -n scripts/detect-meaningful-report-delta.sh
+	@bash -n scripts/repo-hygiene.sh
+	@bash scripts/repo-hygiene.sh check
 	@echo "Lint checks passed."
 
 test:
@@ -103,3 +106,6 @@ agent-generate:
 
 run:
 	@echo "ASDEV Platform is a standards/governance repository; use scripts under platform/scripts/."
+
+hygiene:
+	@bash scripts/repo-hygiene.sh check
