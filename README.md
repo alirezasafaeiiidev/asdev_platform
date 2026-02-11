@@ -63,6 +63,7 @@ make test
 make reports
 make run
 make hygiene
+make verify-hub
 ```
 
 `make test` always runs the full test suite and does not skip `yq`-dependent checks.
@@ -139,6 +140,7 @@ make ci-last-run-compact
 - `scripts/weekly-governance-digest.sh` supports `DIGEST_REPO` override (defaults to `$GITHUB_REPOSITORY` in CI).
 - `scripts/monthly-release.sh` supports `RELEASE_REPO` and `BASE_BRANCH` overrides for reusable rollout automation.
 - `make hygiene` runs repository hygiene checks (cache artifacts and empty directory detection).
+- `make verify-hub` runs mandatory verification sequence: `make setup` -> `make ci` -> `make test`.
 
 ## Public Data Policy
 
@@ -165,6 +167,7 @@ make ci-last-run
 make ci-last-run-compact
 make digest-cleanup-dry-run
 make hygiene
+make verify-hub
 ```
 
 ## Agent Rollout

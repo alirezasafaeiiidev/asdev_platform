@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: setup lint test run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact agent-generate hygiene
+.PHONY: setup lint test run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact agent-generate hygiene verify-hub
 
 setup:
 	@command -v git >/dev/null || (echo "git is required" && exit 1)
@@ -109,3 +109,8 @@ run:
 
 hygiene:
 	@bash scripts/repo-hygiene.sh check
+
+verify-hub:
+	@$(MAKE) setup
+	@$(MAKE) ci
+	@$(MAKE) test
