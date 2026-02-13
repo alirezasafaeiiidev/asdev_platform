@@ -4,7 +4,7 @@ set -euo pipefail
 work_dir="$(mktemp -d)"
 trap 'rm -rf "$work_dir"' EXIT
 
-archive_file="${work_dir}/asdev_platform.tar"
+archive_file="${work_dir}/asdev-standards-platform.tar"
 
 git archive --format=tar HEAD > "$archive_file"
 

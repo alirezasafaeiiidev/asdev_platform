@@ -1,5 +1,5 @@
 targets:
-  - repo: alirezasafaeiiidev/my_portfolio
+  - repo: alirezasafaeiiidev/asdev-portfolio
     default_branch: main
     templates:
       - pr-template
@@ -18,7 +18,7 @@ targets:
       - asdev-sync
       - brand-rollout
 
-  - repo: alirezasafaeiiidev/persian_tools
+  - repo: alirezasafaeiiidev/asdev-persiantoolbox
     default_branch: main
     templates:
       - pr-template
@@ -39,7 +39,7 @@ targets:
       - standards
       - brand-rollout
 
-  - repo: alirezasafaeiiidev/patreon_iran
+  - repo: alirezasafaeiiidev/asdev-creator-membership-ir
     default_branch: main
     templates:
       - pr-template
@@ -57,3 +57,27 @@ targets:
       - README.md
     labels:
       - asdev-sync
+
+  - repo: alirezasafaeiiidev/asdev-nexa-vpn
+    default_branch: main
+    # Runtime external dependency exception:
+    # this repository cannot be strictly local-first by design.
+    # Governance remains mandatory via ASDEV core standards.
+    runtime_profile: external-dependent
+    templates:
+      - pr-template
+      - issue-bug
+      - issue-feature
+      - agents-runtime-guidance
+      - codex-automation-spec
+      - contributing-minimum
+      - readme-minimum
+      - ci-quality-gate
+    optional_features:
+      - editorconfig-default
+      - agent-guidelines
+    opt_outs: []
+    labels:
+      - asdev-sync
+      - standards
+      - external-dependent

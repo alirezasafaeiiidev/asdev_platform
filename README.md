@@ -16,6 +16,7 @@ Core process contracts:
 - Definition of Done policy: `governance/policies/definition-of-done.md`
 - CI expectations policy: `governance/policies/ci-expectations.md`
 - Security checklist policy: `governance/policies/security-checklist.md`
+- External dependency governance policy: `governance/policies/external-dependency-governance.md`
 - Agent rollout template pack:
   - `platform/agent/AGENT_TEMPLATE.md`
   - `platform/agent/HUMAN_GATES.md`
@@ -30,7 +31,7 @@ This repository does not own consumer-repo business logic.
 
 - This repository is intended to be public as the standards/governance source of truth.
 - Consumer application repositories can remain private/public independently.
-- Current private pilot retained by policy: `python-level1-pilot`.
+- Approved runtime external-dependency exception: `alirezasafaeiiidev/asdev-nexa-vpn` (governed by `governance/policies/external-dependency-governance.md`).
 
 ## License
 
@@ -43,7 +44,7 @@ Please report vulnerabilities through the process in `SECURITY.md`.
 ## Repository Layout
 
 ```text
-asdev_platform/
+asdev-standards-platform/
 ├─ governance/
 ├─ standards/
 ├─ platform/
@@ -207,6 +208,6 @@ APPLY=true make agent-generate
 
 - Execution status report: `docs/technical-execution-v2-status-2026-02-13.md`
 - Related rollout PRs:
-  - `asdev_platform`: `hotfix/pr-flow` -> PR #121
-  - `my_portfolio`: `feat/phase0-critical-risk-hardening` -> PR #11
-  - `persian_tools`: `feat/phase2-phase3-migration-observability` -> PR #13
+  - `asdev-standards-platform`: `hotfix/pr-flow` -> PR #121
+  - `asdev-portfolio`: `feat/phase0-critical-risk-hardening` -> PR #11
+  - `asdev-persiantoolbox`: `feat/phase2-phase3-migration-observability` -> PR #13

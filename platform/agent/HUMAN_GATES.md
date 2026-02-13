@@ -8,6 +8,7 @@ Agents must stop and request explicit human approval before making changes in th
 4. Telemetry, external data transfer, secret handling, or sensitive logging.
 5. Legal text changes (Terms/Privacy) or sensitive claims.
 6. Critical UX flow changes (signup, checkout, pricing, payment).
+7. Runtime external-dependency profile changes (new provider, new egress path, provider switch, fallback model changes).
 
 ## Operating Rule
 

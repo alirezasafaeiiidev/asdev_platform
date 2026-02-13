@@ -8,7 +8,7 @@ DIGEST_OWNER="${DIGEST_OWNER:-@alirezasafaeiiidev}"
 DIGEST_REVIEW_SLA="${DIGEST_REVIEW_SLA:-24h from issue update}"
 DIGEST_CLONE_FAILED_LIMIT="${DIGEST_CLONE_FAILED_LIMIT:-5}"
 DIGEST_COMBINED_FILE="${DIGEST_COMBINED_FILE:-sync/divergence-report.combined.csv}"
-DIGEST_REPO="${DIGEST_REPO:-${GITHUB_REPOSITORY:-alirezasafaeiiidev/asdev_platform}}"
+DIGEST_REPO="${DIGEST_REPO:-${GITHUB_REPOSITORY:-alirezasafaeiiidev/asdev-standards-platform}}"
 source "${ROOT_DIR}/scripts/csv-utils.sh"
 
 require_cmd() {

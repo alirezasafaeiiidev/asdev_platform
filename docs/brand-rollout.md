@@ -4,8 +4,15 @@
 
 Target repositories in current wave:
 
-- `my_portfolio`
-- `persian_tools`
+- `asdev-portfolio`
+- `asdev-persiantoolbox`
+- `asdev-creator-membership-ir`
+- `asdev-automation-hub`
+
+Runtime exception (tracked in governance):
+
+- `asdev-nexa-vpn` is `external-dependent` and exempt from strict local-first runtime rules.
+- It still must follow ASDEV core governance from `asdev-standards-platform`.
 
 ## Rollout Steps
 
@@ -21,19 +28,26 @@ Target repositories in current wave:
 
 ## Validation Per Repository
 
-- `my_portfolio`:
+- `asdev-portfolio`:
   - `bun run lint`
   - `bun run type-check`
   - `bun run test`
   - `bun run build`
   - `bun run verify`
   - `bun run scan:external`
-- `persian_tools`:
+- `asdev-persiantoolbox`:
   - `pnpm run ci:quick`
   - `pnpm run deploy:readiness:validate`
+- `asdev-creator-membership-ir`:
+  - `pnpm run lint`
+  - `pnpm run typecheck`
+  - `pnpm run test:unit`
+- `asdev-automation-hub`:
+  - `pnpm lint`
+  - `pnpm test`
 
 ## References
 
 - `standards/branding/brand-attribution-v1.md`
 - `platform/repo-templates/brand/v1/README.md`
-
+- `governance/policies/external-dependency-governance.md`

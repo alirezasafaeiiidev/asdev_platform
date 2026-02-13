@@ -5,7 +5,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DATE_TAG="$(date -u +%Y-%m-%d)"
 BRANCH_NAME="chore/asdev-monthly-release-${DATE_TAG}"
 BASE_BRANCH="${BASE_BRANCH:-main}"
-RELEASE_REPO="${RELEASE_REPO:-${GITHUB_REPOSITORY:-alirezasafaeiiidev/asdev_platform}}"
+RELEASE_REPO="${RELEASE_REPO:-${GITHUB_REPOSITORY:-alirezasafaeiiidev/asdev-standards-platform}}"
 source "${ROOT_DIR}/scripts/csv-utils.sh"
 
 require_cmd() {

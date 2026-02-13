@@ -1,5 +1,5 @@
 targets:
-  - repo: alirezasafaeiiidev/my_portfolio
+  - repo: alirezasafaeiiidev/asdev-portfolio
     default_branch: main
     templates:
       - js-ts-level1-ci
@@ -12,7 +12,7 @@ targets:
       - asdev-sync
       - standards
 
-  - repo: alirezasafaeiiidev/persian_tools
+  - repo: alirezasafaeiiidev/asdev-persiantoolbox
     default_branch: main
     templates:
       - js-ts-level1-ci
@@ -25,7 +25,7 @@ targets:
       - asdev-sync
       - standards
 
-  - repo: alirezasafaeiiidev/patreon_iran
+  - repo: alirezasafaeiiidev/asdev-creator-membership-ir
     default_branch: main
     templates:
       - js-ts-level1-ci

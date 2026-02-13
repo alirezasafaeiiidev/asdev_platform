@@ -8,12 +8,14 @@ from pathlib import Path
 
 OWNER_DEFAULT = "alirezasafaeiiidev"
 DEFAULT_REPOS = [
-    "asdev_platform",
-    "persian_tools",
-    "my_portfolio",
-    "patreon_iran",
-    "go-level1-pilot",
-    "python-level1-pilot",
+    "asdev-standards-platform",
+    "asdev-persiantoolbox",
+    "asdev-portfolio",
+    "asdev-creator-membership-ir",
+    "asdev-automation-hub",
+    "asdev-codex-reviewer",
+    "asdev-family-rosca",
+    "asdev-nexa-vpn",
 ]
 
 BASE_GATES = [
@@ -23,6 +25,7 @@ BASE_GATES = [
     "Telemetry/external data transfer/secret handling changes",
     "Legal text (Terms/Privacy) or sensitive claims",
     "Critical UX flows (signup/checkout/pricing/payment)",
+    "Runtime external-dependency profile changes (new provider/new egress path/provider switch)",
 ]
 
 
@@ -119,27 +122,29 @@ def workflow_list(repo_dir: Path):
 
 def lenses_for_repo(repo: str, stack: str):
     base = ["Quality", "Reliability", "Security", "Documentation"]
-    if repo in {"my_portfolio", "persian_tools"}:
+    if repo in {"asdev-portfolio", "asdev-persiantoolbox"}:
         return base + ["UX/Accessibility", "SEO/Performance", "Product"]
-    if repo == "patreon_iran":
+    if repo == "asdev-creator-membership-ir":
         return base + ["Legal/Compliance", "Risk/Auditability", "Abuse/Fraud resistance", "Payment Integrity"]
     if stack in {"go", "python"}:
         return base + ["Simplicity/Maintainability", "CI baseline parity"]
-    if repo == "asdev_platform":
+    if repo == "asdev-standards-platform":
         return base + ["Template traceability", "Cross-repo adoption safety", "Policy coherence"]
+    if repo == "asdev-nexa-vpn":
+        return base + ["External dependency governance", "Operations/Resilience"]
     return base
 
 
 def risks_for_repo(repo: str):
-    if repo == "patreon_iran":
+    if repo == "asdev-creator-membership-ir":
         return ["Payment/payout/download flows", "RBAC and authorization", "Compliance and legal wording"]
-    if repo == "my_portfolio":
+    if repo == "asdev-portfolio":
         return ["SEO regressions", "UX/a11y regressions", "security hardening drift"]
-    if repo == "persian_tools":
+    if repo == "asdev-persiantoolbox":
         return ["Local-first/privacy regressions", "consent/analytics violations", "PWA cache/version drift"]
-    if repo in {"go-level1-pilot", "python-level1-pilot"}:
-        return ["CI baseline drift"]
-    if repo == "asdev_platform":
+    if repo == "asdev-nexa-vpn":
+        return ["External provider availability", "egress boundary drift", "secret and key handling"]
+    if repo == "asdev-standards-platform":
         return ["template-policy drift", "cross-repo rollout breakage"]
     return ["undocumented risk"]
 
