@@ -69,3 +69,18 @@ templates:
     mode: optional
     source_ref: standards/coding/level-0.md
     path: CODEOWNERS
+  - id: brand-v1-lib
+    version: 1.0.0
+    mode: should
+    source_ref: standards/branding/brand-attribution-v1.md
+    path: brand/v1/src/lib/brand.ts
+  - id: brand-v1-footer
+    version: 1.0.0
+    mode: should
+    source_ref: standards/branding/brand-attribution-v1.md
+    path: brand/v1/src/components/brand/BrandFooter.tsx
+  - id: brand-v1-link
+    version: 1.0.0
+    mode: should
+    source_ref: standards/branding/brand-attribution-v1.md
+    path: brand/v1/src/components/brand/BrandLink.tsx

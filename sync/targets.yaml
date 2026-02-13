@@ -16,6 +16,7 @@ targets:
     opt_outs: []
     labels:
       - asdev-sync
+      - brand-rollout
 
   - repo: alirezasafaeiiidev/persian_tools
     default_branch: main
@@ -36,6 +37,7 @@ targets:
     labels:
       - asdev-sync
       - standards
+      - brand-rollout
 
   - repo: alirezasafaeiiidev/patreon_iran
     default_branch: main

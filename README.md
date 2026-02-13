@@ -193,6 +193,7 @@ APPLY=true make agent-generate
 ```
 
 - See `docs/agent-rollout.md` for the end-to-end workflow and PR strategy.
+- Brand rollout guide: `docs/brand-rollout.md`.
 
 ## Phase B Deliverables
 
