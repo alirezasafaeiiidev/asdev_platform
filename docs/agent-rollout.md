@@ -13,12 +13,14 @@ Define a repeatable process to generate and maintain repository-specific `AGENT.
 - Generator:
   - `platform/scripts/generate-agent-md.py`
 - Target repository list:
-  - `asdev_platform`
-  - `persian_tools`
-  - `my_portfolio`
-  - `patreon_iran`
-  - `go-level1-pilot`
-  - `python-level1-pilot`
+  - `asdev-standards-platform`
+  - `asdev-persiantoolbox`
+  - `asdev-portfolio`
+  - `asdev-creator-membership-ir`
+  - `asdev-automation-hub`
+  - `asdev-codex-reviewer`
+  - `asdev-family-rosca`
+  - `asdev-nexa-vpn`
 
 ## Execution
 
@@ -38,7 +40,7 @@ Custom owner/repos/workdir:
 
 ```bash
 OWNER=alirezasafaeiiidev \
-REPOS="persian_tools my_portfolio" \
+REPOS="asdev-persiantoolbox asdev-portfolio" \
 WORKDIR=/tmp/asdev-agent-gen \
 APPLY=true \
 make agent-generate
@@ -83,3 +85,4 @@ Never bypass human approval for:
 - telemetry/external data transfer/secret handling
 - legal text changes
 - critical signup/checkout/pricing/payment UX flow changes
+- external-dependency profile changes (provider switch/new egress path)

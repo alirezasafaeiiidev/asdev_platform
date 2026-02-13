@@ -1,11 +1,3 @@
-targets:
-  - repo: alirezasafaeiiidev/python-level1-pilot
-    default_branch: main
-    templates:
-      - python-level1-ci
-    optional_features:
-      - agent-guidelines
-    opt_outs: []
-    labels:
-      - asdev-sync
-      - standards
+# Retired on 2026-02-13 after repository decommission.
+# Keep file for audit/history compatibility.
+targets: []

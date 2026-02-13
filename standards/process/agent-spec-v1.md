@@ -1,7 +1,7 @@
 # AGENT Specification v1
 
 - Status: Active
-- Version: 1.0.0
+- Version: 1.1.0
 - Owner: ASDEV Platform
 
 ## Purpose
@@ -61,6 +61,7 @@ Agents must pause for explicit human approval when work includes:
 - Telemetry, external data transfer, secret handling, or sensitive logging.
 - Legal/privacy/terms or sensitive branding text.
 - Critical UX flow changes (signup, checkout, pricing, payment).
+- Runtime external-dependency profile changes (new provider, new egress path, provider switch, or changed failure posture).
 
 ### 6) Quality Checklist
 

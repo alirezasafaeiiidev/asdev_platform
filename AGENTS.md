@@ -1,6 +1,6 @@
 # Codex Runtime Guidance (ASDEV Hub)
 
-This file is the runtime contract for Codex when working in `asdev_platform`.
+This file is the runtime contract for Codex when working in `asdev-standards-platform`.
 
 ## Mission
 
@@ -57,3 +57,4 @@ Always pause for explicit approval before:
 - `platform/agent/HUMAN_GATES.md`
 - `platform/agent/REPO_LENSES.md`
 - `docs/resource-policy.md`
+- `governance/policies/external-dependency-governance.md`

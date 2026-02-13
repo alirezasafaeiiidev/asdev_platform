@@ -91,7 +91,7 @@ reports:
 	@bash scripts/validate-report-attestation.sh sync/divergence-report.combined.csv sync/divergence-report.combined.errors.csv sync/divergence-report.combined.errors.trend.csv sync/generated-reports.attestation
 
 digest-cleanup-dry-run:
-	@repo="$${REPO:-alirezasafaeiiidev/asdev_platform}"; \
+	@repo="$${REPO:-alirezasafaeiiidev/asdev-standards-platform}"; \
 	latest_number="$$(gh issue list --repo "$$repo" --state open --search "Weekly Governance Digest in:title" --limit 1 --json number --jq '.[0].number // empty')"; \
 	latest_url="$$(gh issue list --repo "$$repo" --state open --search "Weekly Governance Digest in:title" --limit 1 --json url --jq '.[0].url // empty')"; \
 	if [[ -z "$$latest_number" || -z "$$latest_url" ]]; then \
@@ -104,7 +104,7 @@ digest-cleanup-dry-run:
 	rm -f "$$summary_file"
 
 ci-last-run:
-	@repo="$${REPO:-alirezasafaeiiidev/asdev_platform}"; \
+	@repo="$${REPO:-alirezasafaeiiidev/asdev-standards-platform}"; \
 	if [[ "$${GH_FORCE_MISSING:-false}" == "true" ]] || ! command -v gh >/dev/null 2>&1; then \
 		echo "gh CLI is required for ci-last-run"; \
 		exit 0; \
@@ -112,7 +112,7 @@ ci-last-run:
 	gh run list --repo "$$repo" --limit 1 --json workflowName,databaseId,status,conclusion,displayTitle --jq '.[0] | [.workflowName, .databaseId, .status, (.conclusion // "n/a"), .displayTitle] | @tsv'
 
 ci-last-run-json:
-	@repo="$${REPO:-alirezasafaeiiidev/asdev_platform}"; \
+	@repo="$${REPO:-alirezasafaeiiidev/asdev-standards-platform}"; \
 	if [[ "$${GH_FORCE_MISSING:-false}" == "true" ]] || ! command -v gh >/dev/null 2>&1; then \
 		echo "{}"; \
 		exit 0; \
@@ -120,7 +120,7 @@ ci-last-run-json:
 	gh run list --repo "$$repo" --limit 1 --json databaseId,status,conclusion,headSha --jq '.[0] // {}'
 
 ci-last-run-compact:
-	@repo="$${REPO:-alirezasafaeiiidev/asdev_platform}"; \
+	@repo="$${REPO:-alirezasafaeiiidev/asdev-standards-platform}"; \
 	if [[ "$${GH_FORCE_MISSING:-false}" == "true" ]] || ! command -v gh >/dev/null 2>&1; then \
 		echo "n/a	n/a"; \
 		exit 0; \
@@ -129,7 +129,7 @@ ci-last-run-compact:
 
 agent-generate:
 	@owner="$${OWNER:-alirezasafaeiiidev}"; \
-	repos="$${REPOS:-asdev_platform persian_tools my_portfolio patreon_iran go-level1-pilot python-level1-pilot}"; \
+	repos="$${REPOS:-asdev-standards-platform asdev-persiantoolbox asdev-portfolio asdev-creator-membership-ir asdev-automation-hub asdev-codex-reviewer asdev-family-rosca asdev-nexa-vpn}"; \
 	workdir="$${WORKDIR:-/tmp/asdev-agent-gen}"; \
 	if [[ "$${APPLY:-false}" == "true" ]]; then \
 		python3 platform/scripts/generate-agent-md.py --owner "$$owner" --workdir "$$workdir" --apply --repos $$repos; \

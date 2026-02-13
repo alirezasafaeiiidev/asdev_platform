@@ -37,6 +37,7 @@ If a command class is unavailable, define fallback behavior.
 - Telemetry/external data transfer/secret handling changes
 - Legal text (Terms/Privacy) or sensitive claims
 - Critical UX flows (signup/checkout/pricing/payment)
+- Runtime external-dependency profile changes (new provider/new egress path/provider switch)
 
 ## Quality Checklist
 
