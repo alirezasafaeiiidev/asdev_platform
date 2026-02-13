@@ -111,7 +111,7 @@ jobs:
 
   sync:
     needs: prepare
-    if: needs.prepare.outputs.target_count != '0'
+    if: needs.prepare.outputs.target_count != '0' && secrets.SYNC_TOKEN != ''
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -126,13 +126,6 @@ jobs:
       SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
 
     steps:
-      - name: Validate SYNC_TOKEN
-        run: |
-          if [ -z "${SYNC_TOKEN}" ]; then
-            echo "SYNC_TOKEN secret is required and was not provided."
-            exit 1
-          fi
-
       - name: Checkout source (standards-platform)
         uses: actions/checkout@v4
         with:
@@ -221,3 +214,17 @@ jobs:
             echo "- PR: ${{ steps.cpr.outputs.pull-request-url }}" >> "$GITHUB_STEP_SUMMARY"
             echo "- Auto-merge attempted when enabled by config and allowed by target policy." >> "$GITHUB_STEP_SUMMARY"
           fi
+
+  sync-not-configured:
+    needs: prepare
+    if: needs.prepare.outputs.target_count != '0' && secrets.SYNC_TOKEN == ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Write configuration warning
+        run: |
+          echo "### Standards Sync Configuration" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Sync skipped because \`SYNC_TOKEN\` is not configured." >> "$GITHUB_STEP_SUMMARY"
+          echo "- Configure repository secret \`SYNC_TOKEN\` in asdev-standards-platform to enable cross-repo PR sync." >> "$GITHUB_STEP_SUMMARY"
