@@ -11,6 +11,7 @@ ASDEV Platform can:
 - Publish language-agnostic and language-aware standards
 - Provide reusable templates and sync tooling
 - Report divergence
+- Govern repositories with approved runtime external dependencies via explicit policy
 
 ASDEV Platform cannot:
 - Override repository owner merge authority
@@ -23,3 +24,4 @@ ASDEV Platform cannot:
 - Advisory-first rollout
 - Optional merge by repository owner
 - Divergence is measured and reported
+- External dependency exceptions must be explicitly documented and reviewed

@@ -1,5 +1,5 @@
 targets:
-  - repo: alirezasafaeiiidev/patreon_iran
+  - repo: alirezasafaeiiidev/asdev-creator-membership-ir
     default_branch: main
     templates:
       - js-ts-level1-ci

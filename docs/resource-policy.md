@@ -1,7 +1,7 @@
 # Resource Policy
 
 - Status: Active
-- Version: 1.0.0
+- Version: 1.1.0
 
 ## Purpose
 
@@ -26,6 +26,13 @@ These defaults are tuned for mid-range developer machines and should be reduced 
 
 - Prefer GitHub Actions for remote-heavy workloads (matrix builds, cross-platform validation, full E2E suites).
 - Avoid ad-hoc remote execution outside standard CI unless explicitly approved.
+
+## External Dependency Profiles
+
+- Local-first remains the default profile for ASDEV repositories.
+- Repositories that require runtime external services must be explicitly classified as `external-dependent`.
+- `external-dependent` repositories still follow ASDEV core governance and controls from:
+  - `governance/policies/external-dependency-governance.md`
 
 ## Operational Notes
 
