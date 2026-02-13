@@ -32,7 +32,6 @@ jobs:
       pr_body: ${{ steps.cfg.outputs.pr_body }}
       merge_method: ${{ steps.cfg.outputs.merge_method }}
       enable_auto_merge: ${{ steps.cfg.outputs.enable_auto_merge }}
-      sync_token_available: ${{ steps.cfg.outputs.sync_token_available }}
 
     steps:
       - name: Checkout source repo
@@ -45,7 +44,6 @@ jobs:
         id: cfg
         env:
           SOURCE_SHA: ${{ github.sha }}
-          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
         run: |
           python3 - <<'PY'
           import json
@@ -104,7 +102,6 @@ jobs:
             'pr_body': body_rendered,
             'merge_method': merge.get('method', 'squash'),
             'enable_auto_merge': 'true' if bool(merge.get('enable_auto_merge', True)) else 'false',
-            'sync_token_available': 'true' if os.getenv('SYNC_TOKEN', '') else 'false',
           }
 
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as f:
@@ -114,7 +111,7 @@ jobs:
 
   sync:
     needs: prepare
-    if: needs.prepare.outputs.target_count != '0' && needs.prepare.outputs.sync_token_available == 'true'
+    if: needs.prepare.outputs.target_count != '0'
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -129,13 +126,28 @@ jobs:
       SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
 
     steps:
+      - name: Resolve sync token availability
+        id: token_gate
+        run: |
+          if [ -n "${SYNC_TOKEN}" ]; then
+            echo "has_token=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_token=false" >> "$GITHUB_OUTPUT"
+            echo "### Standards Sync Configuration" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "- Sync skipped because \`SYNC_TOKEN\` is not configured." >> "$GITHUB_STEP_SUMMARY"
+            echo "- Configure repository secret \`SYNC_TOKEN\` in asdev-standards-platform to enable cross-repo PR sync." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Checkout source (standards-platform)
+        if: steps.token_gate.outputs.has_token == 'true'
         uses: actions/checkout@v4
         with:
           path: source
           fetch-depth: 1
 
       - name: Checkout target repo
+        if: steps.token_gate.outputs.has_token == 'true'
         uses: actions/checkout@v4
         with:
           repository: ${{ matrix.target.repo }}
@@ -144,6 +156,7 @@ jobs:
           fetch-depth: 0
 
       - name: Copy managed files into target
+        if: steps.token_gate.outputs.has_token == 'true'
         env:
           MANAGED_PATHS_JSON: ${{ needs.prepare.outputs.managed_paths_json }}
         run: |
@@ -170,6 +183,7 @@ jobs:
           PY
 
       - name: Create or update PR in target repo
+        if: steps.token_gate.outputs.has_token == 'true'
         id: cpr
         uses: peter-evans/create-pull-request@v6
         with:
@@ -186,7 +200,7 @@ jobs:
           add-paths: ${{ needs.prepare.outputs.managed_paths_multiline }}
 
       - name: Request reviewer(s)
-        if: steps.cpr.outputs.pull-request-number != '' && needs.prepare.outputs.reviewers_csv != ''
+        if: steps.token_gate.outputs.has_token == 'true' && steps.cpr.outputs.pull-request-number != '' && needs.prepare.outputs.reviewers_csv != ''
         uses: peter-evans/request-review@v3
         with:
           token: ${{ env.SYNC_TOKEN }}
@@ -195,7 +209,7 @@ jobs:
           reviewers: ${{ needs.prepare.outputs.reviewers_csv }}
 
       - name: Enable auto-merge
-        if: steps.cpr.outputs.pull-request-number != '' && needs.prepare.outputs.enable_auto_merge == 'true'
+        if: steps.token_gate.outputs.has_token == 'true' && steps.cpr.outputs.pull-request-number != '' && needs.prepare.outputs.enable_auto_merge == 'true'
         continue-on-error: true
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
@@ -205,6 +219,7 @@ jobs:
           merge-method: ${{ needs.prepare.outputs.merge_method }}
 
       - name: Write sync summary
+        if: steps.token_gate.outputs.has_token == 'true'
         run: |
           echo "### Standards Sync Result" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
@@ -217,17 +232,3 @@ jobs:
             echo "- PR: ${{ steps.cpr.outputs.pull-request-url }}" >> "$GITHUB_STEP_SUMMARY"
             echo "- Auto-merge attempted when enabled by config and allowed by target policy." >> "$GITHUB_STEP_SUMMARY"
           fi
-
-  sync-not-configured:
-    needs: prepare
-    if: needs.prepare.outputs.target_count != '0' && needs.prepare.outputs.sync_token_available != 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Write configuration warning
-        run: |
-          echo "### Standards Sync Configuration" >> "$GITHUB_STEP_SUMMARY"
-          echo "" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Sync skipped because \`SYNC_TOKEN\` is not configured." >> "$GITHUB_STEP_SUMMARY"
-          echo "- Configure repository secret \`SYNC_TOKEN\` in asdev-standards-platform to enable cross-repo PR sync." >> "$GITHUB_STEP_SUMMARY"
