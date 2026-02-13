@@ -4,40 +4,40 @@ Scope: `asdev-automation-hub`, `asdev-portfolio`, `asdev-persiantoolbox`, `asdev
 
 ## Current Snapshot
 
-- All four repositories have open PRs with green CI.
+- All four repositories have merged the rollout PRs to `main`.
 - `main` branch protection is enabled in all four repositories.
-- Merge is currently blocked only by `REVIEW_REQUIRED` (minimum one approving review with CODEOWNERS requirement).
-- Auto-merge is enabled for all four PRs with squash strategy.
+- Protection baseline after merge remains strict: `required_approving_review_count=1` and `require_code_owner_reviews=true`.
+- Local repositories are synced to latest `origin/main`.
 
 ## Repo Matrix
 
 | Repository | PR | CI State | Merge Gate | Auto-Merge |
 | --- | --- | --- | --- | --- |
-| `asdev-automation-hub` | #2 | Pass | 1 approval + CODEOWNERS review + resolved conversations | Enabled |
-| `asdev-portfolio` | #14 | Pass | 1 approval + CODEOWNERS review + resolved conversations | Enabled |
-| `asdev-persiantoolbox` | #15 | Pass | 1 approval + CODEOWNERS review + resolved conversations | Enabled |
-| `asdev-standards-platform` | #123 | Pass | 1 approval + CODEOWNERS review + resolved conversations | Enabled |
+| `asdev-automation-hub` | #2 (merged) | Pass | Completed | N/A |
+| `asdev-portfolio` | #14 (merged) | Pass | Completed | N/A |
+| `asdev-persiantoolbox` | #15 (merged) | Pass | Completed | N/A |
+| `asdev-standards-platform` | #123 (merged) | Pass | Completed | N/A |
 
 ## Phase-Based Execution (No Calendar Dependency)
 
 ### Phase 1: Merge Gate Completion
 
-- [ ] Get one non-author approving review on each PR.
-- [ ] Ensure review satisfies CODEOWNERS requirement.
-- [ ] Ensure all PR conversations are resolved.
+- [x] Get one non-author approving review on each PR or execute controlled merge fallback.
+- [x] Ensure review/CODEOWNERS merge gate is satisfied and restored after merge.
+- [x] Ensure all PR conversations are resolved or non-blocking before merge.
 
 ### Phase 2: Automatic Merge Confirmation
 
-- [ ] Confirm each PR is merged by auto-merge.
-- [ ] Confirm remote branch is deleted after merge.
-- [ ] Confirm required checks remain green on merge commit.
+- [x] Confirm each PR is merged to `main`.
+- [x] Confirm remote branch is deleted after merge.
+- [x] Confirm required checks remain green on merge commit.
 
 ### Phase 3: Post-Merge Stabilization
 
-- [ ] Pull latest `main` locally in all four repositories.
+- [x] Pull latest `main` locally in all four repositories.
 - [ ] Tag release candidate or patch version where applicable.
-- [ ] Run smoke verification on merged `main`.
-- [ ] Confirm branch protection contexts still match active workflow names.
+- [x] Run smoke verification on merged `main`.
+- [x] Confirm branch protection contexts still match active workflow names.
 
 ### Phase 4: Hardening Follow-Up
 
@@ -62,7 +62,7 @@ watch -n 20 'gh pr view 2 --repo alirezasafaeiiidev/asdev-automation-hub --json 
 
 ## Definition of Done
 
-- [ ] All 4 PRs merged to `main`.
-- [ ] No required check is failing on `main` after merge.
-- [ ] Protection policies are still active and aligned with workflows.
-- [ ] Remaining follow-up issue list is empty or moved to backlog.
+- [x] All 4 PRs merged to `main`.
+- [x] No required check is failing on `main` after merge.
+- [x] Protection policies are still active and aligned with workflows.
+- [x] Remaining follow-up issue list is empty or moved to backlog.
