@@ -3,6 +3,8 @@
 
 # Generated reports
 sync/divergence-report.csv
+docs/reports/*.md
+!docs/reports/.gitkeep
 
 # Temporary files
 *.tmp

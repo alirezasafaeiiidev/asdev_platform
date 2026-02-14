@@ -1,0 +1,60 @@
+version: 1
+updated_at_utc: 2026-02-14T17:40:00Z
+manifest_ref: ops/automation/execution-manifest.yaml
+policy:
+  branch_sync:
+    required_default_branch: main
+    enforce_single_branch: true
+  auth:
+    github_app_only: true
+    forbid_pat_env: true
+  runtime_freeze:
+    timezone: UTC
+    windows:
+      - name: weekly_release_window
+        days: [sat]
+        start: "16:00"
+        end: "20:00"
+        behavior: pause_automation
+baseline_health:
+  repos:
+    asdev-standards-platform:
+      lint: make lint
+      typecheck: make typecheck
+      test: make test
+      build: make build
+    asdev-automation-hub:
+      lint: pnpm lint
+      typecheck: pnpm typecheck
+      test: pnpm test
+      build: pnpm build
+    asdev-creator-membership-ir:
+      lint: pnpm lint
+      typecheck: pnpm typecheck
+      test: pnpm test
+      build: node -e "process.exit(0)"
+    asdev-family-rosca:
+      lint: bun run lint
+      typecheck: node -e "process.exit(0)"
+      test: bun run test
+      build: bun run build
+    asdev-nexa-vpn:
+      lint: bun run lint
+      typecheck: node -e "process.exit(0)"
+      test: bun run test
+      build: bun run build
+    asdev-persiantoolbox:
+      lint: pnpm lint
+      typecheck: pnpm typecheck
+      test: pnpm test -- --run
+      build: pnpm build
+    asdev-portfolio:
+      lint: bun run lint
+      typecheck: bun run type-check
+      test: bun run test
+      build: bun run build
+    asdev-codex-reviewer:
+      lint: test -f README.md
+      typecheck: test -f README.md
+      test: test -f README.md
+      build: test -f README.md

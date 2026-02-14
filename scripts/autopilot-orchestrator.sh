@@ -14,6 +14,7 @@ REPORT_FILE="${PLATFORM_ROOT}/docs/reports/AUTOPILOT_EXECUTION_REPORT.md"
 IDLE_SECONDS="${IDLE_SECONDS:-180}"
 HEALTHCHECK_SECONDS="${HEALTHCHECK_SECONDS:-300}"
 POST_COMPLETE_WAIT_SECONDS="${POST_COMPLETE_WAIT_SECONDS:-180}"
+FREEZE_GUARD_SCRIPT="${FREEZE_GUARD_SCRIPT:-${SCRIPT_DIR}/automation-freeze-guard.sh}"
 
 mkdir -p "${LOG_DIR}" "${DONE_DIR}"
 touch "${RUN_LOG}" "${ERROR_LOG}"
@@ -188,6 +189,14 @@ run_cycle() {
 echo "[$(timestamp)] autopilot started pid=$$ idle=${IDLE_SECONDS}s health=${HEALTHCHECK_SECONDS}s" | tee -a "${RUN_LOG}"
 
 while true; do
+  if [[ -x "${FREEZE_GUARD_SCRIPT}" ]]; then
+    if ! freeze_state="$("${FREEZE_GUARD_SCRIPT}" 2>&1)"; then
+      echo "[$(timestamp)] freeze_guard active: ${freeze_state}" | tee -a "${RUN_LOG}"
+      sleep "${IDLE_SECONDS}"
+      continue
+    fi
+  fi
+
   if has_pending_once_tasks; then
     run_cycle "once"
     sleep "${IDLE_SECONDS}"
