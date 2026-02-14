@@ -72,6 +72,11 @@ make run
 make hygiene
 make verify-hub
 make fast-parallel-local
+make autopilot-start
+make autopilot-status
+make autopilot-stop
+make autopilot-install-user-service
+make autopilot-uninstall-user-service
 ```
 
 `make test` always runs the full test suite and does not skip `yq`-dependent checks.
@@ -79,6 +84,11 @@ make fast-parallel-local
 `make verify` runs deterministic acceptance gates with task-level logs under `logs/{task-id}.log`.
 `make reports` runs the local report pipeline: combined report -> trend -> dashboard -> schema checks -> attestation write/validate.
 `make fast-parallel-local` runs aggressive parallel verification for the four primary repositories and writes per-repo logs under `asdev-standards-platform/logs/fast-parallel/`.
+`make autopilot-start` starts the background phased orchestrator with 3-minute retry idle windows.
+`make autopilot-status` prints autopilot runtime status.
+`make autopilot-stop` stops the autopilot background process.
+`make autopilot-install-user-service` installs an auto-start user systemd service.
+`make autopilot-uninstall-user-service` removes the user systemd service.
 
 Automation acceptance contract:
 
@@ -210,6 +220,26 @@ APPLY=true make agent-generate
 ## Technical Execution v2
 
 - Execution status report: `docs/technical-execution-v2-status-2026-02-13.md`
+- Master execution roadmap: `docs/MASTER_EXECUTION_ROADMAP_2026.md`
+- Human external actions register: `docs/HUMAN_EXTERNAL_ACTIONS_2026-02-14.md`
+- Phase 0 closure report: `docs/reports/PHASE_0_CLOSURE_REPORT.md`
+- Phase 1 funnel report: `docs/reports/PHASE_1_FUNNEL_REPORT.md`
+- Phase 2 SEO report: `docs/reports/PHASE_2_SEO_REPORT.md`
+- Phase 3 ops report: `docs/reports/PHASE_3_OPS_REPORT.md`
+- Phase 4 standardization report: `docs/reports/PHASE_4_STANDARDIZATION_REPORT.md`
+- Roadmap progress report: `docs/reports/ROADMAP_PROGRESS_2026-02-14.md`
+- Execution log: `docs/reports/EXECUTION_LOG_2026-02-14.md`
+- Autopilot report: `docs/reports/AUTOPILOT_EXECUTION_REPORT.md`
+- Portfolio autopilot coverage report: `docs/reports/PORTFOLIO_AUTOPILOT_COVERAGE_2026-02-14.md`
+- Autopilot tasks: `scripts/autopilot-tasks.tsv`
+- Autopilot systemd unit template: `ops/systemd/asdev-autopilot.service`
+- Autopilot runbook: `docs/autopilot-runbook.md`
+- New standards pack:
+  - `standards/ops/release-state-source-of-truth.md`
+  - `standards/seo/technical-seo-standard.md`
+  - `standards/seo/service-entity-schema-standard.md`
+  - `standards/branding/brand-house-standard.md`
+  - `standards/ux/consulting-funnel-standard.md`
 - Related rollout PRs:
   - `asdev-standards-platform`: PR #122 (merged), PR #121 (closed as superseded)
   - `asdev-automation-hub`: PR #1 (merged)
