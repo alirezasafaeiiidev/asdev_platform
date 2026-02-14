@@ -14,6 +14,7 @@ if [[ ! -f "${SOURCE_SERVICE_FILE}" ]]; then
 fi
 
 mkdir -p "${USER_SYSTEMD_DIR}"
+mkdir -p "${PLATFORM_ROOT}/docs/reports"
 cp "${SOURCE_SERVICE_FILE}" "${TARGET_SERVICE_FILE}"
 
 if ! command -v systemctl >/dev/null 2>&1; then

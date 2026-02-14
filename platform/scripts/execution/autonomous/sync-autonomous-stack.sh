@@ -14,6 +14,7 @@ DATE_LOCAL="$(date +%F)"
 REPORT="$HUB/docs/reports/AUTONOMOUS_STACK_SYNC_${DATE_LOCAL}.md"
 
 mkdir -p "$TARGET_DIR"
+mkdir -p "$HUB/docs/reports"
 
 if [[ ! -f "$TPL" ]]; then
   echo "missing template: $TPL" >&2

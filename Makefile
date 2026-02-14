@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: setup lint typecheck test e2e build coverage security-audit verify run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact agent-generate hygiene verify-hub fast-parallel-local autopilot-start autopilot-stop autopilot-status autopilot-install-user-service autopilot-uninstall-user-service execution-sync execution-status execution-max
+.PHONY: setup lint typecheck test e2e build coverage security-audit verify run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact agent-generate hygiene verify-hub fast-parallel-local autopilot-start autopilot-stop autopilot-status autopilot-install-user-service autopilot-uninstall-user-service execution-sync execution-status execution-max enforce-main-sync github-app-auth-check p0-stabilization
 
 setup:
 	@command -v git >/dev/null || (echo "git is required" && exit 1)
@@ -48,6 +48,10 @@ lint:
 	@bash -n scripts/check-coverage-threshold.sh
 	@bash -n scripts/run-task.sh
 	@bash -n scripts/repo-hygiene.sh
+	@bash -n scripts/automation-freeze-guard.sh
+	@bash -n scripts/enforce-main-sync-policy.sh
+	@bash -n scripts/github-app-auth-guard.sh
+	@bash -n scripts/p0-stabilization.sh
 	@bash scripts/repo-hygiene.sh check
 	@echo "Lint checks passed."
 
@@ -192,3 +196,12 @@ execution-status:
 
 execution-max:
 	@bash platform/scripts/run-priority-pipelines-max.sh
+
+enforce-main-sync:
+	@bash scripts/enforce-main-sync-policy.sh check
+
+github-app-auth-check:
+	@bash scripts/github-app-auth-guard.sh
+
+p0-stabilization:
+	@bash scripts/p0-stabilization.sh

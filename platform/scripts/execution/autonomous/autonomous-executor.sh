@@ -28,6 +28,7 @@ if [[ "$EXECUTION_PROFILE" == "max" && -x "$PIPELINE_SCRIPT_MAX" ]]; then
   PIPELINE_SCRIPT="$PIPELINE_SCRIPT_MAX"
 fi
 AUTOPILOT_SCRIPT="${EXECUTION_DIR}/run-strategic-execution-autopilot.sh"
+FREEZE_GUARD_SCRIPT="${HUB}/scripts/automation-freeze-guard.sh"
 
 mkdir -p "$LOG_DIR" "$STATE_DIR"
 printf '%s\n' "$$" > "$PID_FILE"
@@ -160,6 +161,14 @@ log "EXECUTION_PROFILE=${EXECUTION_PROFILE}"
 log "PIPELINE_SCRIPT=${PIPELINE_SCRIPT}"
 
 while true; do
+  if [[ -x "$FREEZE_GUARD_SCRIPT" ]]; then
+    if ! freeze_state="$("$FREEZE_GUARD_SCRIPT" 2>&1)"; then
+      log "FREEZE_GUARD_ACTIVE: ${freeze_state}"
+      sleep "$IDLE_WAIT_SECONDS"
+      continue
+    fi
+  fi
+
   if [[ -f "$STOP_FILE" ]]; then
     log "STOP_SIGNAL_DETECTED"
     rm -f "$STOP_FILE"
