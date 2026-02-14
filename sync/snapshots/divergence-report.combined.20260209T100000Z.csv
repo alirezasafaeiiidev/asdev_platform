@@ -1,4 +1,0 @@
-target_file,repo,template_id,expected_version,detected_version,mode,source_ref,last_checked_at,status
-targets.yaml,repo-a,pr-template,1.0.0,missing,required,ref,2026-02-09T10:00:00Z,clone_failed
-targets.yaml,repo-b,pr-template,1.0.0,missing,required,ref,2026-02-09T10:00:00Z,clone_failed
-targets.yaml,repo-d,pr-template,1.0.0,missing,required,ref,2026-02-09T10:00:00Z,unknown_template

@@ -1,2 +1,0 @@
-repo,template_id,expected_version,detected_version,mode,source_ref,last_checked_at,status
-repo-a,pr-template,1.0.0,1.0.0,required,ref,2026-02-09T00:00:00Z,aligned
