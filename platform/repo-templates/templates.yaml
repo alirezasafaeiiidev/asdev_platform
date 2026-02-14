@@ -59,3 +59,23 @@ templates:
     mode: optional
     source_ref: standards/coding/level-0.md
     path: CODEOWNERS
+  - id: brand-footer-attribution
+    version: 1.0.0
+    mode: should
+    source_ref: standards/branding/brand-house-standard.md
+    path: docs/branding/footer-attribution.md
+  - id: brand-about-page
+    version: 1.0.0
+    mode: should
+    source_ref: standards/branding/brand-house-standard.md
+    path: docs/branding/about-brand-page.md
+  - id: seo-technical-contract
+    version: 1.0.0
+    mode: should
+    source_ref: standards/seo/technical-seo-standard.md
+    path: docs/seo/technical-seo-contract.md
+  - id: release-state-consistency-guardrail
+    version: 1.0.0
+    mode: optional
+    source_ref: standards/ops/release-state-source-of-truth.md
+    path: scripts/release/validate-release-state-consistency.mjs

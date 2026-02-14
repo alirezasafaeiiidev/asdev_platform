@@ -7,6 +7,7 @@ sync/divergence-report.csv
 # Temporary files
 *.tmp
 logs/
+var/autopilot/
 
 # Python cache artifacts
 __pycache__/

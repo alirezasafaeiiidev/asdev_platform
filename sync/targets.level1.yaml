@@ -3,6 +3,9 @@ targets:
     default_branch: main
     templates:
       - js-ts-level1-ci
+      - brand-footer-attribution
+      - brand-about-page
+      - seo-technical-contract
     optional_features:
       - agent-guidelines
     opt_outs: []
@@ -14,8 +17,12 @@ targets:
     default_branch: main
     templates:
       - js-ts-level1-ci
+      - brand-footer-attribution
+      - brand-about-page
+      - seo-technical-contract
     optional_features:
       - agent-guidelines
+      - release-state-consistency-guardrail
     opt_outs: []
     labels:
       - asdev-sync

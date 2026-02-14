@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-.PHONY: setup lint typecheck test e2e build coverage security-audit verify run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact agent-generate hygiene verify-hub fast-parallel-local
+.PHONY: setup lint typecheck test e2e build coverage security-audit verify run ci reports digest-cleanup-dry-run ci-last-run ci-last-run-json ci-last-run-compact agent-generate hygiene verify-hub fast-parallel-local autopilot-start autopilot-stop autopilot-status autopilot-install-user-service autopilot-uninstall-user-service
 
 setup:
 	@command -v git >/dev/null || (echo "git is required" && exit 1)
@@ -32,6 +32,11 @@ lint:
 	@bash -n scripts/validate-report-attestation.sh
 	@bash -n scripts/close-stale-report-update-prs.sh
 	@bash -n scripts/summarize-clone-failed.sh
+	@bash -n scripts/autopilot-orchestrator.sh
+	@bash -n scripts/autopilot-start.sh
+	@bash -n scripts/autopilot-stop.sh
+	@bash -n scripts/autopilot-install-user-service.sh
+	@bash -n scripts/autopilot-uninstall-user-service.sh
 	@bash -n scripts/csv-utils.sh
 	@bash -n scripts/normalize-report-output.sh
 	@bash -n scripts/detect-meaningful-report-delta.sh
@@ -150,3 +155,29 @@ verify-hub:
 
 fast-parallel-local:
 	@bash scripts/fast-parallel-local.sh
+
+autopilot-start:
+	@bash scripts/autopilot-start.sh
+
+autopilot-stop:
+	@bash scripts/autopilot-stop.sh
+
+autopilot-status:
+	@log_dir="$${LOG_DIR:-$(CURDIR)/var/autopilot}"; \
+	pid_file="$$log_dir/autopilot.pid"; \
+	if [[ -f "$$pid_file" ]]; then \
+		pid="$$(cat "$$pid_file")"; \
+		if kill -0 "$$pid" >/dev/null 2>&1 && ps -p "$$pid" -o args= | grep -q 'autopilot-orchestrator.sh'; then \
+			echo "autopilot running: pid=$$pid"; \
+		else \
+			echo "autopilot not running"; \
+		fi; \
+	else \
+		echo "autopilot not running"; \
+	fi
+
+autopilot-install-user-service:
+	@bash scripts/autopilot-install-user-service.sh
+
+autopilot-uninstall-user-service:
+	@bash scripts/autopilot-uninstall-user-service.sh
